@@ -89,22 +89,7 @@ MAIL_MAILER=log
 
 Production ortamında `APP_ENV`, `APP_DEBUG`, `APP_URL`, veritabanı, mail servisi ve güvenlik anahtarı değerleri ortama uygun şekilde yapılandırılmalıdır.
 
-## Dosya Yüklemeleri ve Git
 
-Uygulama üzerinden yüklenen dosyalar çalışma zamanı verisidir ve Git deposuna dahil edilmez. Bu dosyalar uygulamanın çalıştığı sunucuda saklanmalıdır.
-
-Git dışında bırakılan başlıca alanlar:
-
-- `public/uploads/`
-- `public/images/about/uploads/`
-- `public/images/technologies/catalog/`
-- `public/images/portfolio/*/*`
-- `public/storage`
-- `storage/`
-- `vendor/`
-- `node_modules/`
-
-Repo içinde uygulama kodu, yapılandırma dosyaları, migration/seeder dosyaları ve statik görseller tutulur. `.env`, veritabanı dosyaları, cache, log ve build çıktıları Git'e alınmaz.
 
 ## Flux Pro
 
