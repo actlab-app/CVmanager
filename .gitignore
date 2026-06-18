@@ -24,3 +24,11 @@ yarn-error.log
 /.cursor
 /.junie
 /packages/livewire/flux-pro
+
+# Runtime uploads
+/public/uploads/
+/public/images/about/uploads/*
+!/public/images/about/uploads/.gitignore
+/public/images/technologies/catalog/*
+!/public/images/technologies/catalog/.gitignore
+/public/images/portfolio/*/*
