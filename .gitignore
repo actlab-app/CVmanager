@@ -23,7 +23,6 @@ yarn-error.log
 /.zed
 /.cursor
 /.junie
-/packages/livewire/flux-pro
 
 # Runtime uploads
 /public/uploads/
