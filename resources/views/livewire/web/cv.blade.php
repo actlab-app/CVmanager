@@ -68,7 +68,7 @@
 
                 <div class="mt-2 flex items-center gap-1.5 rounded-lg bg-accentSoft px-2.5 py-1.5 text-center text-[11px] font-black leading-tight text-accentDark">
                     <i data-lucide="globe-2" class="h-3.5 w-3.5"></i>
-                    <span>Website & Portfolyo</span>
+                    <span>Website & Portfolyo test</span>
                 </div>
 
                 <p class="mt-1 max-w-[180px] text-center text-[11px] leading-snug text-muted">
