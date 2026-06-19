@@ -15,6 +15,6 @@ jobs:
     steps:
       - name: Call deploy endpoint
         run: |
-          curl -fsS -X POST "https://cvmanager.actlab.app/api/update-git" \
+          curl -fsS -X POST "https://cvm.actlab.app/api/update-git" \
             -H "Accept: application/json" \
             -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}"
