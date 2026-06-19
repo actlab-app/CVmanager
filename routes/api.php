@@ -3,17 +3,20 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-Route::post('/update-git', function (Request $request) {
+Route::post('/deploy', function (Request $request) {
     $expectedToken = config('services.deploy.token');
     $givenToken = $request->header('X-Deploy-Token');
 
     if (! $expectedToken || ! hash_equals($expectedToken, (string) $givenToken)) {
-        abort(403, 'Invalid deploy token.');
+        return response()->json([
+            'ok' => false,
+            'message' => 'Invalid deploy token.',
+        ], 403);
     }
 
-    $script = '/home/actlabap/deploy/cvmanager.sh';
-    $log = '/home/actlabap/deploy/cvmanager.log';
-    $lock = '/home/actlabap/deploy/cvmanager.lock';
+    $script = '/home/actlabap/deploy/cvm.sh';
+    $log = '/home/actlabap/deploy/cvm.log';
+    $lock = '/home/actlabap/deploy/cvm.lock';
 
     if (file_exists($lock)) {
         return response()->json([
