@@ -14,16 +14,22 @@ jobs:
       - name: Prepare SSH key
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
 
       - name: Add server to known hosts
         run: |
-          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+          mkdir -p ~/.ssh
+          ssh-keyscan -T 30 -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" 2>/dev/null >> ~/.ssh/known_hosts
+          if [ ! -s ~/.ssh/known_hosts ]; then
+            echo "ssh-keyscan failed. Check SSH_HOST and SSH_PORT secrets."
+            exit 1
+          fi
 
       - name: Run deploy script
         run: |
-          ssh -i ~/.ssh/deploy_key \
+          ssh -o StrictHostKeyChecking=yes \
+              -i ~/.ssh/deploy_key \
               -p "${{ secrets.SSH_PORT }}" \
               "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
               "bash ~/deploy-cvmanager.sh"
