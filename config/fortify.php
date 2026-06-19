@@ -90,6 +90,10 @@ return [
 
     'domain' => null,
 
+    'paths' => [
+        'login' => '/admin',
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Fortify Routes Middleware
