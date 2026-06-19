@@ -1,0 +1,29 @@
+name: Deploy CVmanager
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy to Cenuta
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Prepare SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+
+      - name: Add server to known hosts
+        run: |
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+
+      - name: Run deploy script
+        run: |
+          ssh -i ~/.ssh/deploy_key \
+              -p "${{ secrets.SSH_PORT }}" \
+              "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+              "bash ~/deploy-cvmanager.sh"
