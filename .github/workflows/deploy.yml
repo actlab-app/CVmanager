@@ -5,31 +5,16 @@ on:
     branches:
       - main
 
+  workflow_dispatch:
+
 jobs:
   deploy:
-    name: Deploy to Cenuta
+    name: Trigger deploy webhook
     runs-on: ubuntu-latest
 
     steps:
-      - name: Prepare SSH key
+      - name: Call deploy endpoint
         run: |
-          mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-
-      - name: Add server to known hosts
-        run: |
-          mkdir -p ~/.ssh
-          ssh-keyscan -T 30 -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" 2>/dev/null >> ~/.ssh/known_hosts
-          if [ ! -s ~/.ssh/known_hosts ]; then
-            echo "ssh-keyscan failed. Check SSH_HOST and SSH_PORT secrets."
-            exit 1
-          fi
-
-      - name: Run deploy script
-        run: |
-          ssh -o StrictHostKeyChecking=yes \
-              -i ~/.ssh/deploy_key \
-              -p "${{ secrets.SSH_PORT }}" \
-              "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
-              "bash ~/deploy-cvmanager.sh"
+          curl -fsS -X POST "https://cvmanager.actlab.app/api/update-git" \
+            -H "Accept: application/json" \
+            -H "X-Deploy-Token: ${{ secrets.DEPLOY_TOKEN }}"
