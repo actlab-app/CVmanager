@@ -5,41 +5,30 @@
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-777bb4?logo=php&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8?logo=tailwindcss&logoColor=white)
 
-CVmanager, Laravel ve Livewire ile geliştirilmiş çok dilli CV ve portfolyo yönetim uygulamasıdır. Uygulama; CV kayıtları, hakkımda sayfası, iletişim bilgileri, teknoloji kataloğu ve portfolyo projeleri için yönetilebilir bir admin paneli sunar.
+CVmanager; CV, portfolyo ve kişisel profil içeriklerini yönetmek için geliştirilmiş çok dilli bir web uygulamasıdır.
 
-## Özellikler
+**Canlı uygulama:** [cvm.actlab.app](https://cvm.actlab.app)
+
+## Neler sunar?
 
 - Çok dilli içerik yönetimi
-- CV bölümleri için sıralanabilir tekrar alanları
+- CV bilgileri ve sıralanabilir içerik alanları
 - Hakkımda, iletişim ve portfolyo sayfaları
-- Proje görselleri ve teknoloji logoları için dosya yükleme
-- Portfolyo projeleri için yayın durumu, teknoloji seçimi ve detay sayfaları
-- İletişim formu ve mesaj yönetimi
-- Laravel Fortify tabanlı kimlik doğrulama
-- Pest ve PHPUnit ile test altyapısı
+- Portfolyo projeleri, teknoloji etiketleri ve proje görselleri
+- Teknoloji logoları ve görseller için dosya yükleme
+- İletişim formu ve gelen mesajların yönetimi
+- Laravel Fortify ile kimlik doğrulama
 
-## Teknoloji Yığını
+## Teknolojiler
 
-| Katman | Teknoloji |
+| Alan | Teknoloji |
 | --- | --- |
-| Backend | Laravel 12, PHP 8.2+ |
-| Frontend | Livewire, Flux, Tailwind CSS, Vite |
-| Kimlik Doğrulama | Laravel Fortify |
+| Uygulama | Laravel 12, PHP 8.2+ |
+| Arayüz | Livewire, Flux, Tailwind CSS, Vite |
+| Kimlik doğrulama | Laravel Fortify |
+| Veritabanı | SQLite, MySQL veya Laravel destekli diğer veritabanları |
 | Test | Pest, PHPUnit |
-| Veritabanı | SQLite, MySQL veya Laravel tarafından desteklenen diğer veritabanları |
-| Paketler | Spatie Permission, Spatie Translatable, Spatie Media Library, Laravel Excel |
-
-## Proje Yapısı
-
-```text
-app/                 Uygulama sınıfları, Livewire bileşenleri ve modeller
-config/              Laravel ve uygulama ayarları
-database/            Migration, factory ve seeder dosyaları
-public/images/       Statik görseller
-resources/           Blade, CSS ve JavaScript kaynakları
-routes/              Route dosyaları
-tests/               Feature ve unit testleri
-```
+| Ek paketler | Spatie Permission, Translatable, Media Library, Laravel Excel |
 
 ## Gereksinimler
 
@@ -52,6 +41,8 @@ tests/               Feature ve unit testleri
 ## Kurulum
 
 ```bash
+git clone https://github.com/actlab-app/CVmanager.git
+cd CVmanager
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -60,23 +51,25 @@ npm install
 npm run build
 ```
 
-Geliştirme ortamını başlatmak için:
+Yerel geliştirme ortamını başlatmak için:
 
 ```bash
 composer run dev
 ```
 
-Testleri çalıştırmak için:
+Bu komut uygulama sunucusunu, kuyruk dinleyicisini ve Vite geliştirme sunucusunu birlikte çalıştırır.
+
+## Testler
 
 ```bash
 composer test
 ```
 
-## Ortam Ayarları
+## Ortam ayarları
 
-`.env.example` örnek yapılandırma dosyasıdır. Uygulama ortamına ait gerçek değerler `.env` dosyasında tanımlanmalıdır.
+`.env.example` dosyasını `.env` olarak kopyaladıktan sonra uygulamaya uygun veritabanı, e-posta ve URL ayarlarını güncelleyin.
 
-Öne çıkan değişkenler:
+Örnek temel yapılandırma:
 
 ```env
 APP_NAME=CVmanager
@@ -87,14 +80,16 @@ QUEUE_CONNECTION=database
 MAIL_MAILER=log
 ```
 
-Production ortamında `APP_ENV`, `APP_DEBUG`, `APP_URL`, veritabanı, mail servisi ve güvenlik anahtarı değerleri ortama uygun şekilde yapılandırılmalıdır.
-
-
+Canlı ortamda özellikle `APP_ENV`, `APP_DEBUG`, `APP_URL`, veritabanı bağlantısı, e-posta ayarları ve `APP_KEY` değerlerinin güvenli şekilde yapılandırılması gerekir.
 
 ## Flux Pro
 
-Bu proje `livewire/flux-pro` paketine ihtiyaç duyar. Flux Pro kurulumu yapılmadan bağımlılıklar tam olarak yüklenmez ve uygulama çalışmaz. Kurulumdan önce Flux Pro lisansı ve Composer erişimi yapılandırılmalıdır.
+Bu proje `livewire/flux-pro` paketini kullanır. Bağımlılıkların eksiksiz kurulabilmesi için geçerli bir Flux Pro lisansı ve Composer erişimi gerekir.
+
+## Katkı
+
+Hata bildirimi, iyileştirme önerisi veya kod katkısı için issue ya da pull request açabilirsiniz. Göndermeden önce testlerin çalıştığından emin olun.
 
 ## Lisans
 
-Bu proje Laravel tabanlı bir uygulamadır. Kullanılan üçüncü parti ve lisanslı paketlerin lisans koşulları ayrıca dikkate alınmalıdır.
+Bu projede kullanılan üçüncü taraf ve lisanslı paketlerin kendi lisans koşulları geçerlidir.
