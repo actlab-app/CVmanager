@@ -12,6 +12,7 @@ class SiteSetting extends Model
     {
         return [
             'noindex' => 'boolean',
+            'block_visitors_without_reference_token' => 'boolean',
         ];
     }
 }

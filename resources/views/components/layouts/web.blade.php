@@ -11,6 +11,7 @@
       ? $siteSettings->web_theme_color
       : 'green';
     $webTheme = $webThemeColors[$webThemeKey];
+    $referenceToken = \App\Support\ReferenceUrl::currentReferenceToken();
   @endphp
   @if ($siteSettings?->noindex)
     <meta name="robots" content="noindex, nofollow">
@@ -215,6 +216,65 @@
       }
     }
 
+    .reference-greeting {
+      position: fixed;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      z-index: 90;
+      display: flex;
+      max-width: min(360px, calc(100vw - 2rem));
+      align-items: center;
+      gap: 0.85rem;
+      border: 1px solid var(--color-line);
+      border-radius: 1rem;
+      background: var(--bg-card);
+      color: var(--color-ink);
+      padding: 0.8rem 0.95rem;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .reference-greeting img,
+    .reference-greeting-placeholder {
+      width: 46px;
+      height: 46px;
+      flex-shrink: 0;
+      border-radius: 0.85rem;
+      object-fit: cover;
+      background: var(--color-accentSoft);
+      color: var(--color-accentDark);
+    }
+
+    .reference-greeting-placeholder {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 0.9rem;
+    }
+
+    .reference-greeting-title {
+      font-size: 0.78rem;
+      line-height: 1.25rem;
+      font-weight: 900;
+      color: var(--color-ink);
+    }
+
+    .reference-greeting-text {
+      margin-top: 0.1rem;
+      font-size: 0.72rem;
+      line-height: 1rem;
+      font-weight: 650;
+      color: var(--color-muted);
+    }
+
+    @media (max-width: 1023px) {
+      .reference-greeting {
+        right: 0.75rem;
+        bottom: 4.8rem;
+        max-width: calc(100vw - 1.5rem);
+      }
+    }
+
     /* ── PRINT ── */
     @page {
       size: A4;
@@ -246,6 +306,7 @@
 
       .web-nav,
       .mobile-nav-bar,
+      .reference-greeting,
       #theme-toggle,
       .nav-header {
         display: none !important;
@@ -419,19 +480,19 @@
 
         {{-- Menü Linkleri --}}
         <div class="space-y-0.5">
-          <a href="{{ route('about') }}" wire:navigate @class(['nav-item', 'active' => request()->routeIs('about')])>
+          <a href="{{ \App\Support\ReferenceUrl::route('about') }}" wire:navigate @class(['nav-item', 'active' => request()->routeIs('about')])>
             <i data-lucide="user"></i>
             <span>{{ __('Hakkımda') }}</span>
           </a>
-          <a href="{{ route('cv') }}" wire:navigate @class(['nav-item', 'active' => request()->routeIs('cv')])>
+          <a href="{{ \App\Support\ReferenceUrl::route('cv') }}" wire:navigate @class(['nav-item', 'active' => request()->routeIs('cv')])>
             <i data-lucide="file-text"></i>
             <span>{{ __('Özgeçmiş') }}</span>
           </a>
-          <a href="{{ route('portfolio.index') }}" wire:navigate @class(['nav-item', 'active' => request()->routeIs('portfolio.*')])>
+          <a href="{{ \App\Support\ReferenceUrl::route('portfolio.index') }}" wire:navigate @class(['nav-item', 'active' => request()->routeIs('portfolio.*')])>
             <i data-lucide="briefcase"></i>
             <span>{{ __('Portfolyo') }}</span>
           </a>
-          <a href="{{ route('contact') }}" wire:navigate @class(['nav-item', 'active' => request()->routeIs('contact')])>
+          <a href="{{ \App\Support\ReferenceUrl::route('contact') }}" wire:navigate @class(['nav-item', 'active' => request()->routeIs('contact')])>
             <i data-lucide="mail"></i>
             <span>{{ __('İletişim') }}</span>
           </a>
@@ -461,19 +522,19 @@
 
   {{-- ── MOBİL BOTTOM NAV ── --}}
   <div class="mobile-nav-bar">
-    <a href="{{ route('about') }}" wire:navigate @class(['active' => request()->routeIs('about')])>
+    <a href="{{ \App\Support\ReferenceUrl::route('about') }}" wire:navigate @class(['active' => request()->routeIs('about')])>
       <i data-lucide="user"></i>
       <span>{{ __('Hakkımda') }}</span>
     </a>
-    <a href="{{ route('cv') }}" wire:navigate @class(['active' => request()->routeIs('cv')])>
+    <a href="{{ \App\Support\ReferenceUrl::route('cv') }}" wire:navigate @class(['active' => request()->routeIs('cv')])>
       <i data-lucide="file-text"></i>
       <span>{{ __('Özgeçmiş') }}</span>
     </a>
-    <a href="{{ route('portfolio.index') }}" wire:navigate @class(['active' => request()->routeIs('portfolio.*')])>
+    <a href="{{ \App\Support\ReferenceUrl::route('portfolio.index') }}" wire:navigate @class(['active' => request()->routeIs('portfolio.*')])>
       <i data-lucide="briefcase"></i>
       <span>{{ __('Portfolyo') }}</span>
     </a>
-    <a href="{{ route('contact') }}" wire:navigate @class(['active' => request()->routeIs('contact')])>
+    <a href="{{ \App\Support\ReferenceUrl::route('contact') }}" wire:navigate @class(['active' => request()->routeIs('contact')])>
       <i data-lucide="mail"></i>
       <span>{{ __('İletişim') }}</span>
     </a>
@@ -482,6 +543,20 @@
       <span style="font-size:10px;font-weight:600;color:var(--color-muted)" id="theme-label-mobile">{{ __('Tema') }}</span>
     </button>
   </div>
+
+  @if ($referenceToken)
+    <aside class="reference-greeting" aria-label="Referans karşılama mesajı">
+      @if ($referenceToken->image)
+        <img src="{{ asset($referenceToken->image) }}" alt="" />
+      @else
+        <span class="reference-greeting-placeholder">{{ str($referenceToken->name)->substr(0, 2)->upper() }}</span>
+      @endif
+      <div class="min-w-0">
+        <div class="reference-greeting-title">{{ __('Merhaba') }} {{ $referenceToken->name }}</div>
+        <div class="reference-greeting-text">{{ __('enjoy') }}</div>
+      </div>
+    </aside>
+  @endif
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {

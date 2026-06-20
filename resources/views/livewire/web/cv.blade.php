@@ -38,7 +38,7 @@
 
     <div class="mb-4 flex justify-end gap-2 print:hidden">
         @foreach (['tr' => 'TR', 'en' => 'EN'] as $locale => $label)
-            <a href="{{ route('cv', ['locale' => $locale]) }}" @class([
+            <a href="{{ \App\Support\ReferenceUrl::route('cv', ['locale' => $locale]) }}" @class([
                 'cursor-pointer rounded-md px-3 py-1 text-[12px] font-bold',
                 'bg-accent text-white' => app()->getLocale() === $locale,
                 'bg-[var(--bg-card)] text-muted hover:text-ink' => app()->getLocale() !== $locale,
@@ -61,11 +61,10 @@
 
 
                 <img
-                    class="h-32 w-32 object-contain sm:h-36 sm:w-36"
-                    src="{{ asset('images/portfolio-qr.png') }}"
+                    class="h-32 w-32 object-contain sm:h-40 sm:w-40"
+                    src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ rawurlencode($cvData['qr_url']) }}"
                     alt="Detaylı portfolyo QR kodu"
                 />
-
                 <div class="mt-2 flex items-center gap-1.5 rounded-lg bg-accentSoft px-2.5 py-1.5 text-center text-[11px] font-black leading-tight text-accentDark">
                     <i data-lucide="globe-2" class="h-3.5 w-3.5"></i>
                     <span>Website & Portfolyo test</span>

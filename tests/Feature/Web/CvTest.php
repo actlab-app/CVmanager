@@ -35,7 +35,7 @@ it('renders normalized CV data for the active locale', function () {
         ->assertSee('Jane Doe')
         ->assertSee('Yazılım Geliştirici')
         ->assertSee('İstanbul')
-        ->assertSee(asset('images/portfolio-qr.png'));
+        ->assertSee('https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=', false);
 });
 
 it('only accepts supported locales', function () {

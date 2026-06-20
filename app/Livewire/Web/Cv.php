@@ -5,6 +5,7 @@ namespace App\Livewire\Web;
 use App\Models\ContactItem;
 use App\Models\ContactSetting;
 use App\Models\CvRecord;
+use App\Support\ReferenceUrl;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\App;
 use Livewire\Component;
@@ -44,7 +45,7 @@ class Cv extends Component
 
         session()->put('locale', $lang);
         App::setLocale($lang);
-        $this->redirect(route('cv', ['locale' => $lang]));
+        $this->redirect(ReferenceUrl::route('cv', ['locale' => $lang]));
     }
 
     public function render(): View
@@ -54,7 +55,7 @@ class Cv extends Component
 
         $cvData = [
             'full_name' => $record->full_name,
-            'qr_url' => $record->qr_url,
+            'qr_url' => $record->qr_url ? ReferenceUrl::appendToken($record->qr_url) : null,
         ];
 
         foreach (self::TEXT_FIELDS as $field) {

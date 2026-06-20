@@ -92,8 +92,9 @@
         </div>
     </flux:card>
 
+    <div class="grid gap-4 lg:grid-cols-3">
     <flux:card>
-        <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div class="flex h-full flex-col gap-5 justify-between">
             <div class="flex items-start gap-4">
                 <span @class([
                     'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
@@ -122,7 +123,7 @@
     </flux:card>
 
     <flux:card>
-        <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div class="flex h-full flex-col gap-5 justify-between">
             <div class="flex items-start gap-4">
                 <span @class([
                     'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
@@ -148,5 +149,83 @@
                 description="Değişiklik anında uygulanır."
             />
         </div>
+    </flux:card>
+
+    <flux:card>
+        <div class="flex h-full flex-col gap-5 justify-between">
+            <div class="flex items-start gap-4">
+                <span @class([
+                    'flex h-12 w-12 shrink-0 items-center justify-center rounded-xl',
+                    'bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300' => $blockVisitorsWithoutReferenceToken,
+                    'bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300' => ! $blockVisitorsWithoutReferenceToken,
+                ])>
+                    <flux:icon :name="$blockVisitorsWithoutReferenceToken ? 'lock-closed' : 'link'" class="size-6" />
+                </span>
+                <div>
+                    <flux:heading size="lg">Referans Tokeni Zorunluluğu</flux:heading>
+                    <flux:text class="mt-1 max-w-2xl text-sm text-zinc-500">
+                        Bu anahtar açıkken public CV, hakkımda, portfolyo ve iletişim sayfaları yalnızca URL'de "rt" parametresi olan geçerli tokenlerle açılır.
+                    </flux:text>
+                    <flux:badge :color="$blockVisitorsWithoutReferenceToken ? 'amber' : 'green'" class="mt-3">
+                        {{ $blockVisitorsWithoutReferenceToken ? 'Sadece tokenli ziyaretçiler kabul ediliyor' : 'Public erişim serbest' }}
+                    </flux:badge>
+                </div>
+            </div>
+
+            <flux:switch
+                wire:model.live="blockVisitorsWithoutReferenceToken"
+                label="Tokensiz ziyaretçileri engelle"
+                description="Tokensiz ziyaretçiler bilgilendirme sayfasına yönlendirilir."
+            />
+        </div>
+    </flux:card>
+    </div>
+
+    <flux:card>
+        <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+                <flux:heading size="lg">Referans Token Ziyaretleri</flux:heading>
+                <flux:text class="mt-1 text-sm text-zinc-500">
+                    En çok ziyaret alan tokenler büyükten küçüğe sıralanır. Liste ekrana sığması için ilk 10 kayıtla sınırlandırılır.
+                </flux:text>
+            </div>
+            <flux:button size="sm" variant="ghost" icon="link" :href="route('reference-token-manager.index')" wire:navigate>
+                Tokenleri yönet
+            </flux:button>
+        </div>
+
+        @if (count($referenceTokenChart) > 0)
+            <div class="space-y-3">
+                @foreach ($referenceTokenChart as $chartItem)
+                    <div class="grid gap-2 lg:grid-cols-[minmax(180px,260px)_1fr_72px] lg:items-center">
+                        <div class="min-w-0">
+                            <div class="truncate text-sm font-black text-zinc-900 dark:text-white">{{ $chartItem['name'] }}</div>
+                            <div class="truncate font-mono text-[11px] font-bold text-zinc-400">{{ $chartItem['token'] }}</div>
+                        </div>
+
+                        <div class="h-9 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                            <div
+                                class="flex h-full min-w-2 items-center rounded-lg bg-emerald-500 px-3 text-xs font-black text-white transition-all dark:bg-emerald-400 dark:text-zinc-950"
+                                style="width: {{ $chartItem['percentage'] }}%"
+                            >
+                                @if ($chartItem['percentage'] >= 18)
+                                    {{ $chartItem['visits_count'] }}
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="text-right text-sm font-black text-zinc-900 dark:text-white">
+                            {{ $chartItem['visits_count'] }}
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @else
+            <div class="rounded-xl border border-dashed border-zinc-200 px-5 py-10 text-center dark:border-zinc-700">
+                <flux:icon.chart-column class="mx-auto size-9 text-zinc-300" />
+                <flux:heading size="lg" class="mt-3">Henüz token ziyareti yok</flux:heading>
+                <flux:text class="mt-1 text-sm text-zinc-500">Ziyaret geldikçe en yüksek performanslı tokenler burada listelenir.</flux:text>
+            </div>
+        @endif
     </flux:card>
 </div>

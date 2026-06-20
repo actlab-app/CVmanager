@@ -37,7 +37,7 @@
             @endphp
 
             <article class="group overflow-hidden rounded-2xl border border-line bg-[var(--bg-card)] shadow-sm">
-                <a href="{{ route('portfolio.show', $project) }}" class="block">
+                <a href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}" class="block">
                     <div class="relative aspect-[16/9] overflow-hidden bg-soft">
                         @if ($cover)
                             <img
@@ -64,7 +64,7 @@
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <h2 class="text-xl font-black text-ink">
-                                <a href="{{ route('portfolio.show', $project) }}" class="hover:text-accent">
+                                <a href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}" class="hover:text-accent">
                                     {{ $project->title }}
                                 </a>
                             </h2>
@@ -90,7 +90,7 @@
                     </div>
 
                     <a
-                        href="{{ route('portfolio.show', $project) }}"
+                        href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}"
                         class="mt-5 inline-flex items-center gap-2 text-[12px] font-black text-accent hover:text-accentDark"
                     >
                         {{ __('Projeyi İncele') }}

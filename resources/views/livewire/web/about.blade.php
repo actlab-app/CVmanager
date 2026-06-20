@@ -618,7 +618,7 @@
         </div>
 
         <div class="grid grid-cols-2 gap-3 md:w-64">
-            <a href="{{ route('portfolio.index') }}" wire:navigate
+            <a href="{{ \App\Support\ReferenceUrl::route('portfolio.index') }}" wire:navigate
                 class="about-reactive about-orbit-border group flex min-h-28 flex-col justify-between rounded-2xl border border-line bg-[var(--bg-card)] p-4 hover:border-accent"
                 x-on:pointermove="react($event, 9)"
                 x-on:pointerleave="reset($event)">
@@ -632,7 +632,7 @@
                     </span>
                 </span>
             </a>
-            <a href="{{ route('contact') }}" wire:navigate
+            <a href="{{ \App\Support\ReferenceUrl::route('contact') }}" wire:navigate
                 class="about-reactive about-orbit-border group flex min-h-28 flex-col justify-between rounded-2xl border border-line bg-[var(--bg-card)] p-4 hover:border-accent"
                 x-on:pointermove="react($event, 9)"
                 x-on:pointerleave="reset($event)">

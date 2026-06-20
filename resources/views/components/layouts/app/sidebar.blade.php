@@ -23,6 +23,8 @@
                     wire:navigate>{{ __('Hakkımda Yönetimi') }}</flux:navlist.item>
                 <flux:navlist.item icon="message-circle" :href="route('contact-manager')" :current="request()->routeIs('contact-manager')"
                     wire:navigate>{{ __('İletişim Yönetimi') }}</flux:navlist.item>
+                <flux:navlist.item icon="link" :href="route('reference-token-manager.index')" :current="request()->routeIs('reference-token-manager.*')"
+                    wire:navigate>{{ __('Referans Tokenleri') }}</flux:navlist.item>
                 <flux:navlist.group
                     :heading="__('Portfolio Yönetimi')"
                     expandable
