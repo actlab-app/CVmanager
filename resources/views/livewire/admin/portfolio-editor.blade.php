@@ -1,4 +1,5 @@
 @php($isTurkish = $activeLang === 'tr')
+@php($iconCatalog = config('cv-icons'))
 
 <form wire:submit="save" class="space-y-6">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -231,7 +232,7 @@
                     <flux:heading size="lg">Teknoloji Kataloğu</flux:heading>
                 </div>
 
-                <div class="grid grid-cols-2 gap-2">
+                <div class="grid max-h-[500px] grid-cols-2 gap-2 overflow-y-auto pr-1">
                     @foreach ($technologyCatalog as $technology)
                         <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-zinc-200 p-2.5 dark:border-zinc-700">
                             <input
@@ -265,45 +266,323 @@
     </div>
 
     <div class="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <x-admin.portfolio-repeater
-            field="features"
-            :items="$features[$activeLang]"
-            :order="$repeaterOrder['features']"
-            :lang="$activeLang"
-            :title="$isTurkish ? 'Öne Çıkan Özellikler' : 'Highlighted Features'"
-            icon="sparkles"
-            :fields="[
-                'title' => $isTurkish ? 'Başlık' : 'Title',
-                'description' => $isTurkish ? 'Açıklama' : 'Description',
-            ]"
-            icon-picker
-        />
+        <flux:card>
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <flux:icon.sparkles class="size-5 text-zinc-500" />
+                    <flux:heading size="lg">{{ $isTurkish ? 'Öne Çıkan Özellikler' : 'Highlighted Features' }}</flux:heading>
+                    <flux:badge size="sm" color="zinc">{{ count($features[$activeLang]) }}</flux:badge>
+                </div>
+                <flux:button size="sm" variant="primary" icon="plus" wire:click="addItem('features')">
+                    Ekle
+                </flux:button>
+            </div>
 
-        <x-admin.portfolio-repeater
-            field="technical_decisions"
-            :items="$technical_decisions[$activeLang]"
-            :order="$repeaterOrder['technical_decisions']"
-            :lang="$activeLang"
-            :title="$isTurkish ? 'Teknik Kararlar' : 'Technical Decisions'"
-            icon="milestone"
-            :fields="[
-                'label' => $isTurkish ? 'Etiket' : 'Label',
-                'value' => $isTurkish ? 'Değer' : 'Value',
-            ]"
-        />
+            <div class="space-y-3">
+                @forelse ($repeaterOrder['features'] as $position => $rowKey)
+                    @php($item = $features[$activeLang][$rowKey])
+                    @php($selectedIcon = $iconCatalog[$item['icon'] ?? ''] ?? null)
+                    <div
+                        class="flex items-start gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800"
+                        wire:key="features-{{ $activeLang }}-{{ $rowKey }}"
+                    >
+                        <div class="flex min-w-0 flex-1 items-center gap-2">
+                            <flux:select
+                                variant="listbox"
+                                searchable
+                                size="sm"
+                                placeholder="{{ $isTurkish ? 'İkon seç' : 'Select icon' }}"
+                                empty="{{ $isTurkish ? 'Eşleşen ikon bulunamadı.' : 'No matching icon found.' }}"
+                                class="w-10! shrink-0"
+                                wire:model.live="features.{{ $activeLang }}.{{ $rowKey }}.icon"
+                            >
+                                <x-slot name="button">
+                                    <flux:select.button
+                                        size="sm"
+                                        class="w-10! justify-center px-2! [&>svg:last-child]:hidden"
+                                        title="{{ $isTurkish ? 'İkon seç' : 'Select icon' }}"
+                                        aria-label="{{ $isTurkish ? 'İkon seç' : 'Select icon' }}"
+                                    >
+                                        <flux:select.selected placeholder="{{ $isTurkish ? 'İkon seç' : 'Select icon' }}" class="justify-center" />
+                                    </flux:select.button>
+                                </x-slot>
+
+                                <x-slot name="search">
+                                    <flux:select.search placeholder="{{ $isTurkish ? 'İkon ara...' : 'Search icons...' }}" />
+                                </x-slot>
+
+                                <flux:select.option value="">
+                                    <div class="flex min-w-56 items-center gap-2 [ui-selected_&]:min-w-0 [ui-selected_&]:gap-0">
+                                        <flux:icon.x-mark variant="micro" class="text-zinc-400" />
+                                        <span class="flex-1 [ui-selected_&]:hidden">{{ $isTurkish ? 'İkon yok' : 'No icon' }}</span>
+                                    </div>
+                                </flux:select.option>
+
+                                @if (($item['icon'] ?? '') !== '' && ! $selectedIcon)
+                                    <flux:select.option :value="$item['icon']">
+                                        <div class="flex min-w-56 items-center gap-2 [ui-selected_&]:min-w-0 [ui-selected_&]:gap-0">
+                                            <flux:icon.question-mark-circle variant="micro" class="text-amber-500" />
+                                            <span class="flex-1 [ui-selected_&]:hidden">{{ $isTurkish ? 'Mevcut özel ikon' : 'Current custom icon' }}</span>
+                                            <code class="text-xs text-zinc-400 [ui-selected_&]:hidden">{{ $item['icon'] }}</code>
+                                        </div>
+                                    </flux:select.option>
+                                @endif
+
+                                @foreach ($iconCatalog as $name => $icon)
+                                    <flux:select.option :value="$name">
+                                        <div class="flex min-w-56 items-center gap-2 [ui-selected_&]:min-w-0 [ui-selected_&]:gap-0">
+                                            <flux:icon :name="$icon['render'] ?? $name" variant="micro" class="text-zinc-500" />
+                                            <span class="flex-1 [ui-selected_&]:hidden">{{ $icon[$activeLang] }}</span>
+                                            <code class="text-xs text-zinc-400 [ui-selected_&]:hidden">{{ $name }}</code>
+                                        </div>
+                                    </flux:select.option>
+                                @endforeach
+                            </flux:select>
+
+                            <div class="min-w-0 flex-1">
+                                <flux:input
+                                    size="sm"
+                                    :placeholder="$isTurkish ? 'Başlık' : 'Title'"
+                                    wire:model="features.{{ $activeLang }}.{{ $rowKey }}.title"
+                                />
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <flux:input
+                                    size="sm"
+                                    :placeholder="$isTurkish ? 'Açıklama' : 'Description'"
+                                    wire:model="features.{{ $activeLang }}.{{ $rowKey }}.description"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="flex shrink-0 flex-col gap-1">
+                            <flux:button
+                                size="xs"
+                                variant="ghost"
+                                icon="chevron-up"
+                                wire:click="moveItem('features', '{{ $rowKey }}', -1)"
+                                :disabled="$position === 0"
+                            />
+                            <flux:button
+                                size="xs"
+                                variant="ghost"
+                                icon="chevron-down"
+                                wire:click="moveItem('features', '{{ $rowKey }}', 1)"
+                                :disabled="$position === count($repeaterOrder['features']) - 1"
+                            />
+                        </div>
+
+                        <flux:button
+                            size="xs"
+                            variant="ghost"
+                            icon="trash"
+                            class="shrink-0 text-red-500 hover:text-red-700"
+                            wire:click="removeItem('features', '{{ $rowKey }}')"
+                            wire:confirm="Bu satırı silmek istediğinize emin misiniz?"
+                        />
+                    </div>
+                @empty
+                    <div class="rounded-lg border-2 border-dashed border-zinc-200 py-8 text-center dark:border-zinc-700">
+                        <flux:icon.inbox class="mx-auto size-8 text-zinc-300 dark:text-zinc-600" />
+                        <flux:text class="mt-2 text-sm text-zinc-400">Henüz bir kayıt eklenmedi.</flux:text>
+                    </div>
+                @endforelse
+            </div>
+        </flux:card>
+
+        <flux:card>
+            <div class="mb-4 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <flux:icon.milestone class="size-5 text-zinc-500" />
+                    <flux:heading size="lg">{{ $isTurkish ? 'Teknik Kararlar' : 'Technical Decisions' }}</flux:heading>
+                    <flux:badge size="sm" color="zinc">{{ count($technical_decisions[$activeLang]) }}</flux:badge>
+                </div>
+                <flux:button size="sm" variant="primary" icon="plus" wire:click="addItem('technical_decisions')">
+                    Ekle
+                </flux:button>
+            </div>
+
+            <div class="space-y-3">
+                @forelse ($repeaterOrder['technical_decisions'] as $position => $rowKey)
+                    @php($item = $technical_decisions[$activeLang][$rowKey])
+                    <div
+                        class="flex items-start gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800"
+                        wire:key="technical_decisions-{{ $activeLang }}-{{ $rowKey }}"
+                    >
+                        <div class="flex min-w-0 flex-1 items-center gap-2">
+                            <div class="min-w-0 flex-1">
+                                <flux:input
+                                    size="sm"
+                                    :placeholder="$isTurkish ? 'Etiket' : 'Label'"
+                                    wire:model="technical_decisions.{{ $activeLang }}.{{ $rowKey }}.label"
+                                />
+                            </div>
+                            <div class="min-w-0 flex-1">
+                                <flux:input
+                                    size="sm"
+                                    :placeholder="$isTurkish ? 'Değer' : 'Value'"
+                                    wire:model="technical_decisions.{{ $activeLang }}.{{ $rowKey }}.value"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="flex shrink-0 flex-col gap-1">
+                            <flux:button
+                                size="xs"
+                                variant="ghost"
+                                icon="chevron-up"
+                                wire:click="moveItem('technical_decisions', '{{ $rowKey }}', -1)"
+                                :disabled="$position === 0"
+                            />
+                            <flux:button
+                                size="xs"
+                                variant="ghost"
+                                icon="chevron-down"
+                                wire:click="moveItem('technical_decisions', '{{ $rowKey }}', 1)"
+                                :disabled="$position === count($repeaterOrder['technical_decisions']) - 1"
+                            />
+                        </div>
+
+                        <flux:button
+                            size="xs"
+                            variant="ghost"
+                            icon="trash"
+                            class="shrink-0 text-red-500 hover:text-red-700"
+                            wire:click="removeItem('technical_decisions', '{{ $rowKey }}')"
+                            wire:confirm="Bu satırı silmek istediğinize emin misiniz?"
+                        />
+                    </div>
+                @empty
+                    <div class="rounded-lg border-2 border-dashed border-zinc-200 py-8 text-center dark:border-zinc-700">
+                        <flux:icon.inbox class="mx-auto size-8 text-zinc-300 dark:text-zinc-600" />
+                        <flux:text class="mt-2 text-sm text-zinc-400">Henüz bir kayıt eklenmedi.</flux:text>
+                    </div>
+                @endforelse
+            </div>
+        </flux:card>
     </div>
 
-    <x-admin.portfolio-repeater
-        field="metrics"
-        :items="$metrics[$activeLang]"
-        :order="$repeaterOrder['metrics']"
-        :lang="$activeLang"
-        :title="$isTurkish ? 'Proje Metrikleri' : 'Project Metrics'"
-        icon="chart-column"
-        :fields="[
-            'value' => $isTurkish ? 'Değer' : 'Value',
-            'label' => $isTurkish ? 'Açıklama' : 'Label',
-        ]"
-        icon-picker
-    />
+    <flux:card>
+        <div class="mb-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <flux:icon.chart-column class="size-5 text-zinc-500" />
+                <flux:heading size="lg">{{ $isTurkish ? 'Proje Metrikleri' : 'Project Metrics' }}</flux:heading>
+                <flux:badge size="sm" color="zinc">{{ count($metrics[$activeLang]) }}</flux:badge>
+            </div>
+            <flux:button size="sm" variant="primary" icon="plus" wire:click="addItem('metrics')">
+                Ekle
+            </flux:button>
+        </div>
+
+        <div class="space-y-3">
+            @forelse ($repeaterOrder['metrics'] as $position => $rowKey)
+                @php($item = $metrics[$activeLang][$rowKey])
+                @php($selectedIcon = $iconCatalog[$item['icon'] ?? ''] ?? null)
+                <div
+                    class="flex items-start gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800"
+                    wire:key="metrics-{{ $activeLang }}-{{ $rowKey }}"
+                >
+                    <div class="flex min-w-0 flex-1 items-center gap-2">
+                        <flux:select
+                            variant="listbox"
+                            searchable
+                            size="sm"
+                            placeholder="{{ $isTurkish ? 'İkon seç' : 'Select icon' }}"
+                            empty="{{ $isTurkish ? 'Eşleşen ikon bulunamadı.' : 'No matching icon found.' }}"
+                            class="w-10! shrink-0"
+                            wire:model.live="metrics.{{ $activeLang }}.{{ $rowKey }}.icon"
+                        >
+                            <x-slot name="button">
+                                <flux:select.button
+                                    size="sm"
+                                    class="w-10! justify-center px-2! [&>svg:last-child]:hidden"
+                                    title="{{ $isTurkish ? 'İkon seç' : 'Select icon' }}"
+                                    aria-label="{{ $isTurkish ? 'İkon seç' : 'Select icon' }}"
+                                >
+                                    <flux:select.selected placeholder="{{ $isTurkish ? 'İkon seç' : 'Select icon' }}" class="justify-center" />
+                                </flux:select.button>
+                            </x-slot>
+
+                            <x-slot name="search">
+                                <flux:select.search placeholder="{{ $isTurkish ? 'İkon ara...' : 'Search icons...' }}" />
+                            </x-slot>
+
+                            <flux:select.option value="">
+                                <div class="flex min-w-56 items-center gap-2 [ui-selected_&]:min-w-0 [ui-selected_&]:gap-0">
+                                    <flux:icon.x-mark variant="micro" class="text-zinc-400" />
+                                    <span class="flex-1 [ui-selected_&]:hidden">{{ $isTurkish ? 'İkon yok' : 'No icon' }}</span>
+                                </div>
+                            </flux:select.option>
+
+                            @if (($item['icon'] ?? '') !== '' && ! $selectedIcon)
+                                <flux:select.option :value="$item['icon']">
+                                    <div class="flex min-w-56 items-center gap-2 [ui-selected_&]:min-w-0 [ui-selected_&]:gap-0">
+                                        <flux:icon.question-mark-circle variant="micro" class="text-amber-500" />
+                                        <span class="flex-1 [ui-selected_&]:hidden">{{ $isTurkish ? 'Mevcut özel ikon' : 'Current custom icon' }}</span>
+                                        <code class="text-xs text-zinc-400 [ui-selected_&]:hidden">{{ $item['icon'] }}</code>
+                                    </div>
+                                </flux:select.option>
+                            @endif
+
+                            @foreach ($iconCatalog as $name => $icon)
+                                <flux:select.option :value="$name">
+                                    <div class="flex min-w-56 items-center gap-2 [ui-selected_&]:min-w-0 [ui-selected_&]:gap-0">
+                                        <flux:icon :name="$icon['render'] ?? $name" variant="micro" class="text-zinc-500" />
+                                        <span class="flex-1 [ui-selected_&]:hidden">{{ $icon[$activeLang] }}</span>
+                                        <code class="text-xs text-zinc-400 [ui-selected_&]:hidden">{{ $name }}</code>
+                                    </div>
+                                </flux:select.option>
+                            @endforeach
+                        </flux:select>
+
+                        <div class="min-w-0 flex-1">
+                            <flux:input
+                                size="sm"
+                                :placeholder="$isTurkish ? 'Değer' : 'Value'"
+                                wire:model="metrics.{{ $activeLang }}.{{ $rowKey }}.value"
+                            />
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <flux:input
+                                size="sm"
+                                :placeholder="$isTurkish ? 'Açıklama' : 'Label'"
+                                wire:model="metrics.{{ $activeLang }}.{{ $rowKey }}.label"
+                            />
+                        </div>
+                    </div>
+
+                    <div class="flex shrink-0 flex-col gap-1">
+                        <flux:button
+                            size="xs"
+                            variant="ghost"
+                            icon="chevron-up"
+                            wire:click="moveItem('metrics', '{{ $rowKey }}', -1)"
+                            :disabled="$position === 0"
+                        />
+                        <flux:button
+                            size="xs"
+                            variant="ghost"
+                            icon="chevron-down"
+                            wire:click="moveItem('metrics', '{{ $rowKey }}', 1)"
+                            :disabled="$position === count($repeaterOrder['metrics']) - 1"
+                        />
+                    </div>
+
+                    <flux:button
+                        size="xs"
+                        variant="ghost"
+                        icon="trash"
+                        class="shrink-0 text-red-500 hover:text-red-700"
+                        wire:click="removeItem('metrics', '{{ $rowKey }}')"
+                        wire:confirm="Bu satırı silmek istediğinize emin misiniz?"
+                    />
+                </div>
+            @empty
+                <div class="rounded-lg border-2 border-dashed border-zinc-200 py-8 text-center dark:border-zinc-700">
+                    <flux:icon.inbox class="mx-auto size-8 text-zinc-300 dark:text-zinc-600" />
+                    <flux:text class="mt-2 text-sm text-zinc-400">Henüz bir kayıt eklenmedi.</flux:text>
+                </div>
+            @endforelse
+        </div>
+    </flux:card>
 </form>
