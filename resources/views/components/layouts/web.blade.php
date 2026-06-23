@@ -17,6 +17,8 @@
     <meta name="robots" content="noindex, nofollow">
   @endif
   <title>{{ $title ?? 'Cv Manager - Minimal CV' }}</title>
+  <link rel="icon" href="{{ asset('images/favicon.png') }}" type="image/png">
+  <link rel="apple-touch-icon" href="{{ asset('images/favicon.png') }}">
   @vite(['resources/css/app.css', 'resources/js/app.js'])
   <style>
     /* ── LIGHT THEME (default) ── */
@@ -467,15 +469,22 @@
 
         {{-- Logo / Branding --}}
         <div class="nav-header mb-5 px-1">
-          <div class="flex items-center gap-2.5">
-            <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-accentSoft text-accent">
-              <i data-lucide="hexagon" style="width:18px;height:18px"></i>
-            </span>
-            <div>
-              <div class="text-[15px] font-black tracking-tight text-ink leading-tight">ACT</div>
-              <div class="text-[11px] text-muted font-medium">{{ __('Portfolyo') }}</div>
-            </div>
-          </div>
+          <a href="{{ \App\Support\ReferenceUrl::route('about') }}" class="inline-flex items-center" wire:navigate>
+            <img
+              class="block w-auto max-w-[200px] object-contain dark:hidden"
+              src="{{ asset('images/actlab-cvmlogo-dark.webp') }}"
+              alt="{{ config('app.name', 'CV Manager') }}"
+              width="300"
+              height="128"
+            />
+            <img
+              class="hidden w-auto max-w-[200px] object-contain dark:block"
+              src="{{ asset('images/actlab-cvmlogo-light.webp') }}"
+              alt="{{ config('app.name', 'CV Manager') }}"
+              width="300"
+              height="128"
+            />
+          </a>
         </div>
 
         {{-- Menü Linkleri --}}

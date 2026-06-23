@@ -1,6 +1,16 @@
-<div class="flex aspect-square size-8 items-center justify-center rounded-md bg-accent-content text-accent-foreground">
-    <x-app-logo-icon class="size-5 fill-current text-white dark:text-black" />
-</div>
-<div class="ms-1 grid flex-1 text-start text-sm">
-    <span class="mb-0.5 truncate leading-tight font-semibold">Laravel Starter Kit</span>
+<div class="flex min-w-0 items-center">
+    <img
+        class="block h-20 w-auto max-w-[300px] object-contain dark:hidden"
+        src="{{ asset('images/actlab-cvmlogo-dark.webp') }}"
+        alt="{{ config('app.name', 'CV Manager') }}"
+        width="300"
+        height="128"
+    />
+    <img
+        class="hidden h-20 w-auto max-w-[300px] object-contain dark:block"
+        src="{{ asset('images/actlab-cvmlogo-light.webp') }}"
+        alt="{{ config('app.name', 'CV Manager') }}"
+        width="300"
+        height="128"
+    />
 </div>
