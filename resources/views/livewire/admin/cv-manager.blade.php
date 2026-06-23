@@ -40,7 +40,6 @@
                     wire:model="qr_url"
                     placeholder="https://example.com/portfolio"
                     icon="qr-code"
-                    description="Boş bırakılırsa public CV'de QR kartı gösterilmez."
                 />
             </div>
 
@@ -146,4 +145,6 @@
             <span wire:loading wire:target="save">Kaydediliyor...</span>
         </flux:button>
     </div>
+
+    <x-admin.lucide-icon-picker :lang="$activeLang" />
 </div>

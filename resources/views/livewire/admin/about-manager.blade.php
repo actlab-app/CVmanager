@@ -170,4 +170,6 @@
         icon="list-bullet"
         :fields="['number' => 'Numara', 'text' => 'Prensip']"
     />
+
+    <x-admin.lucide-icon-picker :lang="$activeLang" />
 </form>

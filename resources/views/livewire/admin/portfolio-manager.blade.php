@@ -59,10 +59,33 @@
                                 <flux:icon.calendar variant="micro" />
                                 {{ $project->project_date?->format('Y') ?? '-' }}
                             </span>
+                            <span class="flex items-center gap-1">
+                                <flux:icon.queue-list variant="micro" />
+                                Sıra {{ $project->sort_order }}
+                            </span>
                         </div>
                     </div>
 
                     <div class="flex shrink-0 items-center gap-2">
+                        <div class="flex items-center rounded-lg border border-zinc-200 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-900">
+                            <flux:button
+                                size="sm"
+                                variant="ghost"
+                                icon="chevron-up"
+                                wire:click="moveProject({{ $project->id }}, -1)"
+                                :disabled="$loop->first"
+                                title="Yukarı taşı"
+                            />
+                            <flux:button
+                                size="sm"
+                                variant="ghost"
+                                icon="chevron-down"
+                                wire:click="moveProject({{ $project->id }}, 1)"
+                                :disabled="$loop->last"
+                                title="Aşağı taşı"
+                            />
+                        </div>
+
                         @if ($project->is_published)
                             <flux:button
                                 size="sm"

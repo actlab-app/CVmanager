@@ -335,39 +335,7 @@
                 </div>
             </dl>
 
-            <div class="mt-auto grid grid-cols-2 gap-2 pt-4">
-                @if ($project->live_url)
-                <a
-                    href="{{ $project->live_url }}"
-                    class="flex items-center justify-center gap-2 rounded-xl bg-accent px-3 py-2.5 text-[12px] font-bold text-white transition hover:bg-accentDark"
-                    target="_blank"
-                    rel="noreferrer"
-                >
-                    <i data-lucide="external-link" class="h-4 w-4"></i>
-                    {{ __('Canlı Görünüm') }}
-                </a>
-                @endif
-                @if ($project->repository_url)
-                <a
-                    href="{{ $project->repository_url }}"
-                    target="_blank"
-                    rel="noreferrer"
-                    class="flex items-center justify-center gap-2 rounded-xl border border-line bg-soft px-3 py-2.5 text-[12px] font-bold text-ink transition hover:border-accent"
-                >
-                    <i data-lucide="github" class="h-4 w-4"></i>
-                    {{ __('Kaynak Kod') }}
-                </a>
-                @else
-                <span
-                    class="flex cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-line bg-soft px-3 py-2.5 text-[12px] font-bold text-muted opacity-70"
-                    aria-disabled="true"
-                    title="{{ __('Repository bağlantısı eklenmedi') }}"
-                >
-                    <i data-lucide="github" class="h-4 w-4"></i>
-                    {{ __('Kaynak Kod') }}
-                </span>
-                @endif
-            </div>
+            <x-web.portfolio-link-buttons :project="$project" class="mt-auto pt-4" />
         </aside>
     </section>
 

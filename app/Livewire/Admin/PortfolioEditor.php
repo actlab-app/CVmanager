@@ -113,6 +113,8 @@ class PortfolioEditor extends Component
         $this->technologyCatalog = $this->technologyOptions();
 
         if (! $project?->exists) {
+            $this->sort_order = ((int) PortfolioProject::max('sort_order')) + 1;
+
             return;
         }
 

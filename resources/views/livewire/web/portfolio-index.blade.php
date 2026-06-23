@@ -89,13 +89,17 @@
                         @endforeach
                     </div>
 
-                    <a
-                        href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}"
-                        class="mt-5 inline-flex items-center gap-2 text-[12px] font-black text-accent hover:text-accentDark"
-                    >
-                        {{ __('Projeyi İncele') }}
-                        <i data-lucide="arrow-right" class="h-4 w-4"></i>
-                    </a>
+                    <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <x-web.portfolio-link-buttons :project="$project" compact class="min-w-0 flex-1" />
+
+                        <a
+                            href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}"
+                            class="inline-flex shrink-0 items-center justify-center gap-2 text-[12px] font-black text-accent hover:text-accentDark"
+                        >
+                            {{ __('Projeyi İncele') }}
+                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
+                        </a>
+                    </div>
                 </div>
             </article>
         @empty

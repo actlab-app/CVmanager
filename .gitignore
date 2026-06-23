@@ -30,3 +30,5 @@ yarn-error.log
 /public/images/technologies/catalog/*
 !/public/images/technologies/catalog/.gitignore
 /public/images/portfolio/*/*
+/tests
+/tests

@@ -29,9 +29,9 @@ class PortfolioIndex extends Component
             'projects' => PortfolioProject::query()
                 ->where('is_published', true)
                 ->with('images')
-                ->orderByDesc('is_featured')
                 ->orderBy('sort_order')
                 ->orderByDesc('project_date')
+                ->orderBy('id')
                 ->get(),
             'technologyCatalog' => PortfolioTechnology::query()->active()->get()->keyBy('slug'),
         ])->layout('components.layouts.web', [
