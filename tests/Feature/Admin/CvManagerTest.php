@@ -65,7 +65,7 @@ it('keeps moved repeater rows isolated across fields and languages', function ()
         ->assertSet("skills.en.{$frontendKey}.category", 'Frontend EN');
 });
 
-it('renders icon selectors with stable model bindings and client-side previews', function () {
+it('renders icon picker triggers with stable model bindings and client-side previews', function () {
     $component = Livewire::test(CvManager::class)
         ->call('addItem', 'quick_infos');
     $rowKey = $component->get('repeaterOrder.quick_infos.0');
@@ -74,7 +74,8 @@ it('renders icon selectors with stable model bindings and client-side previews',
         ->assertSeeHtml('wire:model.live="quick_infos.tr.'.$rowKey.'.icon"')
         ->assertSeeHtml('wire:model="quick_infos.tr.'.$rowKey.'.title"')
         ->assertSeeHtml('wire:confirm="Bu öğeyi silmek istediğinize emin misiniz?"')
-        ->assertSeeHtml('<ui-selected');
+        ->assertSeeHtml('open-lucide-icon-picker')
+        ->assertDontSeeHtml('<ui-selected');
 });
 
 it('ignores unsupported languages and repeater fields', function () {

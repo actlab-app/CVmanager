@@ -193,6 +193,34 @@ it('persists portfolio repeater rows in their visible order without internal key
         ->and($project->getTranslation('features', 'tr')[0])->not->toHaveKey('_key');
 });
 
+it('reorders portfolio projects from the manager list', function () {
+    $firstProject = new PortfolioProject([
+        'slug' => 'first-sort-project',
+        'status' => 'active',
+        'project_date' => '2026-01-01',
+        'technologies' => [],
+        'sort_order' => 0,
+    ]);
+    $firstProject->setTranslations('title', ['tr' => 'Birinci Proje', 'en' => 'First Project']);
+    $firstProject->save();
+
+    $secondProject = new PortfolioProject([
+        'slug' => 'second-sort-project',
+        'status' => 'active',
+        'project_date' => '2026-01-02',
+        'technologies' => [],
+        'sort_order' => 1,
+    ]);
+    $secondProject->setTranslations('title', ['tr' => 'İkinci Proje', 'en' => 'Second Project']);
+    $secondProject->save();
+
+    Livewire::test(PortfolioManager::class)
+        ->call('moveProject', $secondProject->id, -1);
+
+    expect($secondProject->fresh()->sort_order)->toBe(0)
+        ->and($firstProject->fresh()->sort_order)->toBe(1);
+});
+
 it('updates and deletes projects with their uploaded files', function () {
     $directory = public_path('images/portfolio/test-project');
     File::ensureDirectoryExists($directory);

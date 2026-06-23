@@ -20,14 +20,18 @@ function createPublishedPortfolioProject(array $attributes = []): PortfolioProje
 
     $project = new PortfolioProject([
         'slug' => $attributes['slug'] ?? 'cv-manager',
-        'status' => 'active',
-        'project_date' => '2026-06-13',
+        'status' => $attributes['status'] ?? 'active',
+        'project_date' => $attributes['project_date'] ?? '2026-06-13',
+        'live_url' => $attributes['live_url'] ?? null,
+        'repository_url' => $attributes['repository_url'] ?? null,
         'technologies' => ['laravel', 'livewire', 'tailwindcss'],
-        'is_published' => true,
+        'is_featured' => $attributes['is_featured'] ?? false,
+        'is_published' => $attributes['is_published'] ?? true,
+        'sort_order' => $attributes['sort_order'] ?? 0,
     ]);
 
     foreach ([
-        'title' => 'CV Manager',
+        'title' => $attributes['title'] ?? 'CV Manager',
         'short_description' => 'Çok dilli portfolio projesi.',
         'detailed_description' => 'Dinamik proje detay sayfası.',
         'project_type' => 'Portfolio Yönetim Aracı',
@@ -89,6 +93,57 @@ it('lists published projects on the portfolio index', function () {
         ->assertSee('CV Manager')
         ->assertSee(route('portfolio.show', $project))
         ->assertDontSee(route('portfolio.show', $hiddenProject));
+});
+
+it('shows public and private portfolio links on index and detail pages', function () {
+    $linkedProject = createPublishedPortfolioProject([
+        'slug' => 'linked-project',
+        'title' => 'Linked Project',
+        'live_url' => 'https://example.com/live-project',
+        'repository_url' => 'https://github.com/example/live-project',
+    ]);
+
+    createPublishedPortfolioProject([
+        'slug' => 'private-project',
+        'title' => 'Private Project',
+    ]);
+
+    $this->withSession(['locale' => 'tr'])
+        ->get(route('portfolio.index'))
+        ->assertOk()
+        ->assertSee('https://example.com/live-project', false)
+        ->assertSee('https://github.com/example/live-project', false)
+        ->assertSee('Gizli');
+
+    $this->withSession(['locale' => 'tr'])
+        ->get(route('portfolio.show', $linkedProject))
+        ->assertOk()
+        ->assertSee('https://example.com/live-project', false)
+        ->assertSee('https://github.com/example/live-project', false);
+});
+
+it('orders portfolio index projects by managed sort order', function () {
+    createPublishedPortfolioProject([
+        'slug' => 'featured-late',
+        'title' => 'Featured Late',
+        'is_featured' => true,
+        'project_date' => '2026-06-13',
+        'sort_order' => 20,
+    ]);
+
+    createPublishedPortfolioProject([
+        'slug' => 'plain-early',
+        'title' => 'Plain Early',
+        'is_featured' => false,
+        'project_date' => '2020-01-01',
+        'sort_order' => 5,
+    ]);
+
+    $content = $this->get(route('portfolio.index'))
+        ->assertOk()
+        ->getContent();
+
+    expect(strpos($content, 'Plain Early'))->toBeLessThan(strpos($content, 'Featured Late'));
 });
 
 it('returns not found for an unpublished project', function () {
