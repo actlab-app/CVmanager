@@ -7,7 +7,7 @@
 
 CVmanager; CV, portfolyo ve kişisel profil içeriklerini yönetmek için geliştirilmiş çok dilli bir web uygulamasıdır.
 
-**Canlı uygulama:** [cvm.actlab.app](https://cvm.actlab.app)
+**Canlı uygulama:** [cvm.actlab.app](https://cvm.actlab.app/cv?rt=GH)
 
 ## Neler sunar?
 

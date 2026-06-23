@@ -104,7 +104,7 @@
             @forelse ($tokens as $referenceToken)
                 <flux:card wire:key="reference-token-{{ $referenceToken->id }}">
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                        <div class="flex min-w-0 gap-4">
+                        <div class="flex min-w-0 flex-1 gap-4">
                             <span class="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-zinc-100 text-zinc-400 dark:bg-zinc-800">
                                 @if ($referenceToken->image)
                                     <img class="h-full w-full object-cover" src="{{ asset($referenceToken->image) }}" alt="" />
@@ -112,12 +112,20 @@
                                     <flux:icon.link class="size-6" />
                                 @endif
                             </span>
-                            <div class="min-w-0">
+                            <div class="min-w-0 flex-1">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <flux:heading size="lg">{{ $referenceToken->name }}</flux:heading>
                                     <flux:badge :color="$referenceToken->is_active ? 'green' : 'zinc'">
                                         {{ $referenceToken->is_active ? 'Aktif' : 'Pasif' }}
                                     </flux:badge>
+                                    <span class="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-1 text-[11px] font-black uppercase tracking-wide text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                                        <flux:icon.eye class="size-3.5" />
+                                        {{ $referenceToken->visits_count }} ziyaret
+                                    </span>
+                                    <span class="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+                                        <flux:icon.clock class="size-3.5" />
+                                        {{ $referenceToken->last_visited_at?->format('d.m.Y H:i') ?? '-' }}
+                                    </span>
                                 </div>
                                 <div class="mt-1 font-mono text-sm font-black text-zinc-900 dark:text-white">{{ $referenceToken->token }}</div>
                                 @if ($referenceToken->description)
@@ -136,35 +144,28 @@
                         </div>
                     </div>
 
-                    <div class="mt-4 grid gap-3 border-t border-zinc-200 pt-4 sm:grid-cols-3 dark:border-zinc-700">
-                        <div>
-                            <div class="text-xs font-bold uppercase tracking-wide text-zinc-400">Toplam Ziyaret</div>
-                            <div class="mt-1 text-2xl font-black text-zinc-900 dark:text-white">{{ $referenceToken->visits_count }}</div>
-                        </div>
-                        <div>
-                            <div class="text-xs font-bold uppercase tracking-wide text-zinc-400">Son Ziyaret</div>
-                            <div class="mt-1 text-sm font-semibold text-zinc-700 dark:text-zinc-200">
-                                {{ $referenceToken->last_visited_at?->format('d.m.Y H:i') ?? '-' }}
-                            </div>
-                        </div>
-                        <div>
-                            <div class="text-xs font-bold uppercase tracking-wide text-zinc-400">Kayıt</div>
-                            <div class="mt-1 text-sm font-semibold text-zinc-700 dark:text-zinc-200">{{ $referenceToken->visit_records_count }} ziyaret kaydı</div>
-                        </div>
-                    </div>
+                    <details class="group mt-3 rounded-xl border border-zinc-200 bg-zinc-50/70 dark:border-zinc-700 dark:bg-zinc-900/50">
+                        <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2 text-xs font-black uppercase tracking-wide text-zinc-500 marker:hidden">
+                            <span class="inline-flex min-w-0 items-center gap-2">
+                                <flux:icon.link class="size-3.5 shrink-0" />
+                                <span>Önizleme Linkleri</span>
+                            </span>
+                            <flux:icon.chevron-down class="size-4 shrink-0 transition-transform group-open:rotate-180" />
+                        </summary>
 
-                    <div class="mt-4 space-y-2">
-                        @foreach (['cv' => 'CV', 'portfolio.index' => 'Portfolyo', 'contact' => 'İletişim'] as $routeName => $label)
-                            @php($link = ReferenceUrl::appendToken(route($routeName), $referenceToken->token))
-                            <div class="flex items-center gap-2 rounded-xl border border-zinc-200 p-2 dark:border-zinc-700">
-                                <span class="w-20 shrink-0 text-xs font-black text-zinc-500">{{ $label }}</span>
-                                <span class="min-w-0 flex-1 truncate font-mono text-xs text-zinc-600 dark:text-zinc-300">{{ $link }}</span>
-                                <button type="button" class="rounded-md p-1.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-700 dark:hover:text-white" title="Kopyala" onclick="navigator.clipboard?.writeText(@js($link))">
-                                    <flux:icon.clipboard class="size-4" />
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
+                        <div class="space-y-1 border-t border-zinc-200 p-2 dark:border-zinc-700">
+                            @foreach (['cv' => 'CV', 'portfolio.index' => 'Portfolyo', 'contact' => 'İletişim'] as $routeName => $label)
+                                @php($link = ReferenceUrl::appendToken(route($routeName), $referenceToken->token))
+                                <div class="grid grid-cols-[4.5rem_minmax(0,1fr)_auto] items-center gap-2 rounded-lg bg-white px-2 py-1.5 dark:bg-zinc-800">
+                                    <span class="text-[11px] font-black text-zinc-500">{{ $label }}</span>
+                                    <span class="min-w-0 truncate font-mono text-[11px] text-zinc-600 dark:text-zinc-300">{{ $link }}</span>
+                                    <button type="button" class="rounded-md p-1 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-700 dark:hover:text-white" title="Kopyala" onclick="navigator.clipboard?.writeText(@js($link))">
+                                        <flux:icon.clipboard class="size-3.5" />
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </details>
                 </flux:card>
             @empty
                 <flux:card>
