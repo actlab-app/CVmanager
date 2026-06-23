@@ -88,6 +88,7 @@
                         <flux:icon.photo class="size-5 text-zinc-500" />
                         <flux:heading size="lg">Proje Görselleri</flux:heading>
                         <flux:badge size="sm" color="zinc">{{ count($existingImages) + count($uploads) }}/{{ $maxImages }}</flux:badge>
+                        <flux:badge size="sm" color="amber" wire:loading wire:target="uploads">Yükleniyor...</flux:badge>
                     </div>
                     <flux:text class="text-xs text-zinc-400">JPG, PNG veya WebP - maksimum 5 MB</flux:text>
                 </div>
@@ -176,14 +177,19 @@
                     @if (count($existingImages) + count($uploads) < $maxImages)
                         <label
                             class="flex min-h-48 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-200 p-5 text-center transition hover:border-accent dark:border-zinc-700"
+                            wire:loading.class="pointer-events-none opacity-60"
+                            wire:target="uploads"
                         >
                             <flux:icon.cloud-arrow-up class="size-8 text-zinc-300 dark:text-zinc-600" />
-                            <span class="mt-2 text-sm font-semibold text-zinc-600 dark:text-zinc-300">Görsel seç</span>
-                            <span class="mt-1 text-xs text-zinc-400">Birden fazla dosya seçebilirsiniz</span>
+                            <span class="mt-2 text-sm font-semibold text-zinc-600 dark:text-zinc-300" wire:loading.remove wire:target="uploads">Görsel seç</span>
+                            <span class="mt-2 text-sm font-semibold text-zinc-600 dark:text-zinc-300" wire:loading wire:target="uploads">Görsel yükleniyor...</span>
+                            <span class="mt-1 text-xs text-zinc-400" wire:loading.remove wire:target="uploads">Birden fazla dosya seçebilirsiniz</span>
                             <input
                                 type="file"
                                 class="sr-only"
                                 wire:model="uploads"
+                                wire:loading.attr="disabled"
+                                wire:target="uploads"
                                 accept="image/jpeg,image/png,image/webp"
                                 multiple
                             />
@@ -230,26 +236,26 @@
                         <label class="flex cursor-pointer items-center gap-2 rounded-xl border border-zinc-200 p-2.5 dark:border-zinc-700">
                             <input
                                 type="checkbox"
-                                value="{{ $technology->slug }}"
+                                value="{{ $technology['slug'] }}"
                                 wire:model="technologySlugs"
                                 class="rounded border-zinc-300 text-accent focus:ring-accent"
                             />
                             <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                                @if ($technology->logo_path)
+                                @if ($technology['logo_path'])
                                     <img
                                         class="h-4 w-4 object-contain"
-                                        src="{{ asset($technology->logo_path) }}"
+                                        src="{{ asset($technology['logo_path']) }}"
                                         alt=""
                                     />
                                 @else
-                                    <flux:icon :name="$technology->render_icon" variant="micro" class="text-zinc-500" />
+                                    <flux:icon :name="$technology['render_icon']" variant="micro" class="text-zinc-500" />
                                 @endif
                             </span>
                             <span class="min-w-0">
                                 <span class="block truncate text-xs font-bold text-zinc-700 dark:text-zinc-200">
-                                    {{ $technology->name }}
+                                    {{ $technology['name'] }}
                                 </span>
-                                <span class="block text-[10px] text-zinc-400">{{ $technology->category }}</span>
+                                <span class="block text-[10px] text-zinc-400">{{ $technology['category'] }}</span>
                             </span>
                         </label>
                     @endforeach

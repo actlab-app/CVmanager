@@ -94,6 +94,8 @@ class PortfolioEditor extends Component
 
     public array $technologySlugs = [];
 
+    public array $technologyCatalog = [];
+
     public array $existingImages = [];
 
     public array $existingImageOrder = [];
@@ -108,6 +110,8 @@ class PortfolioEditor extends Component
 
     public function mount(?PortfolioProject $project = null): void
     {
+        $this->technologyCatalog = $this->technologyOptions();
+
         if (! $project?->exists) {
             return;
         }
@@ -392,14 +396,8 @@ class PortfolioEditor extends Component
 
     public function render(): View
     {
-        $technologyCatalog = PortfolioTechnology::query()->active()->ordered()->get();
-
-        $technologyCatalog->each(function (PortfolioTechnology $technology): void {
-            $technology->setAttribute('render_icon', TechnologyIcon::resolve($technology->icon));
-        });
-
         return view('livewire.admin.portfolio-editor', [
-            'technologyCatalog' => $technologyCatalog,
+            'technologyCatalog' => $this->technologyCatalog,
             'maxImages' => self::MAX_IMAGES,
         ]);
     }
@@ -483,5 +481,21 @@ class PortfolioEditor extends Component
             $image->setTranslation('title', $lang, $translations[$lang]['title'] ?? '');
             $image->setTranslation('description', $lang, $translations[$lang]['description'] ?? '');
         }
+    }
+
+    private function technologyOptions(): array
+    {
+        return PortfolioTechnology::query()
+            ->active()
+            ->ordered()
+            ->get(['name', 'slug', 'category', 'logo_path', 'icon'])
+            ->map(fn (PortfolioTechnology $technology): array => [
+                'name' => $technology->name,
+                'slug' => $technology->slug,
+                'category' => $technology->category,
+                'logo_path' => $technology->logo_path,
+                'render_icon' => TechnologyIcon::resolve($technology->icon),
+            ])
+            ->all();
     }
 }
