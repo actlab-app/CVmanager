@@ -22,10 +22,8 @@
 
 <div {{ $attributes->class('relative overflow-visible') }}>
     @if ($showWarning && (! $hasLiveUrl || ! $hasRepositoryUrl))
-        <div class="grid grid-cols-[48px_1px_1fr] overflow-hidden rounded-t-xl border border-red-200 bg-red-50 text-[11px] font-semibold leading-snug text-red-700 shadow-sm dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
-            <div class="flex min-h-full items-center justify-center bg-red-100/80 dark:bg-red-950/50">
-                <img class="h-7 w-7 object-contain" src="{{ asset('images/icons/alert.svg') }}" alt="" />
-            </div>
+        <div class="overflow-hidden rounded-t-xl border border-red-200 bg-red-50 text-[11px] font-semibold leading-snug text-red-700 shadow-sm dark:border-red-900/60 dark:bg-red-950/30 dark:text-red-200">
+            
             <div class="bg-[linear-gradient(to_bottom,transparent_0%,rgba(248,113,113,0.45)_50%,transparent_100%)]"></div>
             <div class="px-3 py-2.5 text-[13px] text-center">
                 {{ __('Bu proje açık kaynaklı değildir.') }}
