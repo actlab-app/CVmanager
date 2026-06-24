@@ -14,7 +14,6 @@ return [
             'current_text' => 'Yönetilebilir içerik sistemleri ve güçlü web deneyimleri.',
             'philosophy_title' => 'Az anlatıp çok göstermek.',
             'philosophy_text' => 'Bu sayfa bir kişisel günlük değil. Nasıl düşündüğümü, neye dikkat ettiğimi ve ortaya çıkan işin hangi prensiplerle şekillendiğini gösteren kısa bir çalışma portresi.',
-            'principles_title' => 'Çalışma Prensipleri',
             'quote' => 'İyi tasarım dikkat çekmek için bağırmaz; doğru anda doğru şeyi görünür kılar.',
             'quote_attribution' => 'ACT · Ürün yaklaşımı',
             'portfolio_cta' => 'İşler',
@@ -29,7 +28,6 @@ return [
             'current_text' => 'Manageable content systems and focused web experiences.',
             'philosophy_title' => 'Show more, disclose less.',
             'philosophy_text' => 'This page is not a personal diary. It is a compact work portrait showing how I think, what I notice and which principles shape the final product.',
-            'principles_title' => 'Working Principles',
             'quote' => 'Good design does not shout for attention; it makes the right thing visible at the right moment.',
             'quote_attribution' => 'ACT · Product mindset',
             'portfolio_cta' => 'Work',
@@ -39,14 +37,14 @@ return [
 
     'hero_panels' => [
         'tr' => [
-            ['number' => '01', 'title' => 'Fikri çözümle'],
-            ['number' => '02', 'title' => 'Sistemi kur'],
-            ['number' => '03', 'title' => 'Deneyimi rafine et'],
+            ['image_path' => 'images/about/about-hero.png', 'title' => 'Fikri çözümle', 'description' => 'Ürünün neden var olduğunu ve hangi problemi çözdüğünü netleştir.'],
+            ['image_path' => 'images/about/about-hero.png', 'title' => 'Sistemi kur', 'description' => 'Yönetilebilir, genişleyebilir ve sade bir yapı oluştur.'],
+            ['image_path' => 'images/about/about-hero.png', 'title' => 'Deneyimi rafine et', 'description' => 'Son dokunuşlarla arayüzü okunur, hızlı ve güvenilir hale getir.'],
         ],
         'en' => [
-            ['number' => '01', 'title' => 'Decode the idea'],
-            ['number' => '02', 'title' => 'Build the system'],
-            ['number' => '03', 'title' => 'Refine the experience'],
+            ['image_path' => 'images/about/about-hero.png', 'title' => 'Decode the idea', 'description' => 'Clarify why the product exists and which problem it solves.'],
+            ['image_path' => 'images/about/about-hero.png', 'title' => 'Build the system', 'description' => 'Create a manageable, extensible and calm structure.'],
+            ['image_path' => 'images/about/about-hero.png', 'title' => 'Refine the experience', 'description' => 'Use final details to make the interface readable, fast and reliable.'],
         ],
     ],
 
@@ -63,18 +61,4 @@ return [
         ],
     ],
 
-    'principles' => [
-        'tr' => [
-            ['number' => '01', 'text' => 'Önce problemi netleştir.'],
-            ['number' => '02', 'text' => 'Arayüzü sistemin dili yap.'],
-            ['number' => '03', 'text' => 'Gereksiz karmaşıklığı sil.'],
-            ['number' => '04', 'text' => 'Teslimden önce tekrar sadeleştir.'],
-        ],
-        'en' => [
-            ['number' => '01', 'text' => 'Clarify the problem first.'],
-            ['number' => '02', 'text' => 'Make the interface the language of the system.'],
-            ['number' => '03', 'text' => 'Remove unnecessary complexity.'],
-            ['number' => '04', 'text' => 'Simplify once more before delivery.'],
-        ],
-    ],
 ];

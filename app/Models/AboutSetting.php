@@ -18,14 +18,12 @@ class AboutSetting extends Model
         'current_text',
         'philosophy_title',
         'philosophy_text',
-        'principles_title',
         'quote',
         'quote_attribution',
         'portfolio_cta',
         'contact_cta',
         'hero_panels',
         'focus_cards',
-        'principles',
     ];
 
     protected $guarded = [];

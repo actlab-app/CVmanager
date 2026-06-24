@@ -27,7 +27,6 @@ class AboutManager extends Component
         'current_text',
         'philosophy_title',
         'philosophy_text',
-        'principles_title',
         'quote',
         'quote_attribution',
         'portfolio_cta',
@@ -35,32 +34,26 @@ class AboutManager extends Component
     ];
 
     private const REPEATER_SCHEMAS = [
-        'hero_panels' => ['number' => '', 'title' => ''],
         'focus_cards' => ['icon' => 'sparkles', 'title' => '', 'text' => ''],
-        'principles' => ['number' => '', 'text' => ''],
     ];
+
+    private const HERO_SHOWCASE_SCHEMA = ['image_path' => '', 'title' => '', 'description' => ''];
 
     public string $activeLang = 'tr';
 
     public array $translations = [];
 
-    public array $hero_panels = ['tr' => [], 'en' => []];
+    public array $hero_showcases = ['tr' => [], 'en' => []];
 
     public array $focus_cards = ['tr' => [], 'en' => []];
 
-    public array $principles = ['tr' => [], 'en' => []];
-
     public array $repeaterOrder = [
-        'hero_panels' => [],
         'focus_cards' => [],
-        'principles' => [],
     ];
 
-    public mixed $heroImage = null;
+    public array $heroShowcaseUploads = [];
 
-    public ?string $existingHeroImagePath = null;
-
-    public bool $removeExistingHeroImage = false;
+    public array $removedHeroShowcaseImagePaths = [];
 
     public mixed $profileImage = null;
 
@@ -73,7 +66,6 @@ class AboutManager extends Component
     public function mount(): void
     {
         $setting = AboutSetting::first();
-        $this->existingHeroImagePath = $setting?->hero_image_path ?? config('about.hero_image_path');
         $this->existingProfileImagePath = $setting?->profile_image_path ?? config('about.profile_image_path');
         $this->profileIsPersonal = (bool) $setting?->profile_is_personal;
 
@@ -82,6 +74,10 @@ class AboutManager extends Component
                 $this->translations[$language][$field] = $setting?->getTranslation($field, $language, false)
                     ?: config("about.translations.{$language}.{$field}", '');
             }
+
+            $heroShowcases = $setting?->getTranslation('hero_panels', $language, false)
+                ?: config("about.hero_panels.{$language}", []);
+            $this->hero_showcases[$language] = $this->normalizeHeroShowcases($heroShowcases, $language);
 
             foreach (array_keys(self::REPEATER_SCHEMAS) as $field) {
                 $items = $setting?->getTranslation($field, $language, false)
@@ -104,7 +100,7 @@ class AboutManager extends Component
 
     public function updated(string $property, mixed $value): void
     {
-        if (! preg_match('/^(hero_panels|focus_cards|principles)\.(tr|en)\.([^.]+)\.(number|icon)$/', $property, $matches)) {
+        if (! preg_match('/^(focus_cards)\.(tr|en)\.([^.]+)\.(icon)$/', $property, $matches)) {
             return;
         }
 
@@ -180,10 +176,21 @@ class AboutManager extends Component
         ];
     }
 
-    public function removeHeroImage(): void
+    public function removeHeroShowcaseImage(int $index): void
     {
-        $this->heroImage = null;
-        $this->removeExistingHeroImage = true;
+        $currentPath = $this->hero_showcases[$this->activeLang][$index]['image_path'] ?? null;
+
+        if ($currentPath) {
+            $this->removedHeroShowcaseImagePaths[] = $currentPath;
+        }
+
+        foreach (self::LANGUAGES as $language) {
+            if (isset($this->hero_showcases[$language][$index])) {
+                $this->hero_showcases[$language][$index]['image_path'] = '';
+            }
+        }
+
+        unset($this->heroShowcaseUploads[$index]);
     }
 
     public function removeProfileImage(): void
@@ -197,18 +204,15 @@ class AboutManager extends Component
         $this->validate();
 
         $setting = AboutSetting::firstOrNew();
-        $oldHeroImagePath = $setting->hero_image_path;
         $oldProfileImagePath = $setting->profile_image_path;
-        $newHeroImagePath = $this->storeImage(
-            $this->heroImage,
-            $this->removeExistingHeroImage ? null : $this->existingHeroImagePath,
-        );
+        $oldHeroShowcaseImagePaths = $this->collectHeroShowcaseImagePaths($setting);
         $newProfileImagePath = $this->storeImage(
             $this->profileImage,
             $this->removeExistingProfileImage ? null : $this->existingProfileImagePath,
         );
 
-        $setting->hero_image_path = $newHeroImagePath;
+        $this->storeHeroShowcaseUploads();
+
         $setting->profile_image_path = $newProfileImagePath;
         $setting->profile_is_personal = $this->profileIsPersonal;
 
@@ -217,6 +221,8 @@ class AboutManager extends Component
                 $setting->setTranslation($field, $language, $this->translations[$language][$field]);
             }
 
+            $setting->setTranslation('hero_panels', $language, $this->hero_showcases[$language]);
+
             foreach (array_keys(self::REPEATER_SCHEMAS) as $field) {
                 $setting->setTranslation($field, $language, $this->orderedItems($field, $language));
             }
@@ -224,14 +230,13 @@ class AboutManager extends Component
 
         $setting->save();
 
-        $this->deleteReplacedImage($oldHeroImagePath, $newHeroImagePath);
+        $this->deleteRemovedHeroShowcaseImages($oldHeroShowcaseImagePaths);
         $this->deleteReplacedImage($oldProfileImagePath, $newProfileImagePath);
 
-        $this->existingHeroImagePath = $newHeroImagePath;
         $this->existingProfileImagePath = $newProfileImagePath;
-        $this->heroImage = null;
+        $this->heroShowcaseUploads = [];
         $this->profileImage = null;
-        $this->removeExistingHeroImage = false;
+        $this->removedHeroShowcaseImagePaths = [];
         $this->removeExistingProfileImage = false;
 
         Flux::toast('Hakkımda sayfası kaydedildi.', variant: 'success');
@@ -248,20 +253,17 @@ class AboutManager extends Component
             'translations.tr.headline' => ['required', 'string', 'max:240'],
             'translations.en.headline' => ['required', 'string', 'max:240'],
             'translations.*.*' => ['nullable', 'string', 'max:2000'],
-            'hero_panels.tr' => ['array', 'min:1', 'max:6'],
-            'hero_panels.en' => ['array', 'min:1', 'max:6'],
-            'hero_panels.*.*.number' => ['required', 'string', 'max:10'],
-            'hero_panels.*.*.title' => ['required', 'string', 'max:100'],
+            'hero_showcases.tr' => ['array', 'size:3'],
+            'hero_showcases.en' => ['array', 'size:3'],
+            'hero_showcases.*.*.image_path' => ['nullable', 'string', 'max:2048'],
+            'hero_showcases.*.*.title' => ['required', 'string', 'max:100'],
+            'hero_showcases.*.*.description' => ['nullable', 'string', 'max:240'],
+            'heroShowcaseUploads.*' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
             'focus_cards.tr' => ['array', 'max:8'],
             'focus_cards.en' => ['array', 'max:8'],
             'focus_cards.*.*.icon' => ['required', 'string', 'max:100'],
             'focus_cards.*.*.title' => ['required', 'string', 'max:100'],
             'focus_cards.*.*.text' => ['required', 'string', 'max:240'],
-            'principles.tr' => ['array', 'max:10'],
-            'principles.en' => ['array', 'max:10'],
-            'principles.*.*.number' => ['required', 'string', 'max:10'],
-            'principles.*.*.text' => ['required', 'string', 'max:240'],
-            'heroImage' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:8192'],
             'profileImage' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
         ];
     }
@@ -286,6 +288,92 @@ class AboutManager extends Component
     {
         if ($oldPath && $oldPath !== $newPath && str_starts_with($oldPath, 'images/about/uploads/')) {
             File::delete(public_path($oldPath));
+        }
+    }
+
+    private function normalizeHeroShowcases(mixed $items, string $language): array
+    {
+        $items = is_array($items) ? array_values($items) : [];
+        $fallbackItems = config('about.hero_panels.'.$language, []);
+        $normalized = [];
+
+        for ($index = 0; $index < 3; $index++) {
+            $item = is_array($items[$index] ?? null) ? $items[$index] : [];
+            $fallback = is_array($fallbackItems[$index] ?? null) ? $fallbackItems[$index] : [];
+
+            $normalized[] = [
+                'image_path' => $item['image_path'] ?? $fallback['image_path'] ?? config('about.hero_image_path', ''),
+                'title' => $item['title'] ?? $fallback['title'] ?? '',
+                'description' => $item['description'] ?? $fallback['description'] ?? '',
+            ];
+        }
+
+        return $normalized;
+    }
+
+    private function storeHeroShowcaseUploads(): void
+    {
+        foreach ($this->heroShowcaseUploads as $index => $upload) {
+            if (! $upload) {
+                continue;
+            }
+
+            $newPath = $this->storeImage($upload, null);
+
+            foreach (self::LANGUAGES as $language) {
+                if (isset($this->hero_showcases[$language][$index])) {
+                    $this->hero_showcases[$language][$index]['image_path'] = $newPath;
+                }
+            }
+        }
+    }
+
+    private function collectHeroShowcaseImagePaths(?AboutSetting $setting): array
+    {
+        if (! $setting?->exists) {
+            return [];
+        }
+
+        $paths = [];
+
+        foreach (self::LANGUAGES as $language) {
+            $items = $setting->getTranslation('hero_panels', $language, false);
+
+            if (! is_array($items)) {
+                continue;
+            }
+
+            foreach ($items as $item) {
+                if (is_array($item) && ! empty($item['image_path'])) {
+                    $paths[] = $item['image_path'];
+                }
+            }
+        }
+
+        return array_values(array_unique($paths));
+    }
+
+    private function deleteRemovedHeroShowcaseImages(array $oldPaths): void
+    {
+        $currentPaths = [];
+
+        foreach (self::LANGUAGES as $language) {
+            foreach ($this->hero_showcases[$language] as $item) {
+                if (! empty($item['image_path'])) {
+                    $currentPaths[] = $item['image_path'];
+                }
+            }
+        }
+
+        $pathsToDelete = array_unique(array_merge(
+            array_diff($oldPaths, $currentPaths),
+            $this->removedHeroShowcaseImagePaths,
+        ));
+
+        foreach ($pathsToDelete as $path) {
+            if (str_starts_with($path, 'images/about/uploads/')) {
+                File::delete(public_path($path));
+            }
         }
     }
 

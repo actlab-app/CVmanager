@@ -18,15 +18,12 @@ return new class extends Migration
             $table->json('current_text')->nullable();
             $table->json('philosophy_title')->nullable();
             $table->json('philosophy_text')->nullable();
-            $table->json('principles_title')->nullable();
             $table->json('quote')->nullable();
             $table->json('quote_attribution')->nullable();
             $table->json('portfolio_cta')->nullable();
             $table->json('contact_cta')->nullable();
             $table->json('hero_panels')->nullable();
             $table->json('focus_cards')->nullable();
-            $table->json('principles')->nullable();
-            $table->string('hero_image_path')->nullable();
             $table->string('profile_image_path')->nullable();
             $table->boolean('profile_is_personal')->default(false);
             $table->timestamps();

@@ -48,10 +48,12 @@
         }
 
         .about-panel-image {
-            height: 116%;
+            height: 100%;
+            inset: 0;
             max-width: none;
+            object-fit: cover;
             position: absolute;
-            top: -8%;
+            width: 100%;
             transform: translate3d(0, var(--image-y, 0), 0) scale(var(--image-scale, 1.08));
             transition: filter .5s ease, transform .2s ease-out;
             will-change: transform;
@@ -492,7 +494,10 @@
             style="grid-template-columns: repeat({{ max(count($about['hero_panels']), 1) }}, minmax(0, 1fr));"
         >
             @foreach ($about['hero_panels'] as $panel)
-                @php($motion = $heroMotions[$loop->index % count($heroMotions)])
+                @php
+                    $motion = $heroMotions[$loop->index % count($heroMotions)];
+                    $panelImagePath = $panel['image_path'] ?? $heroImagePath;
+                @endphp
                 <div class="about-panel-shell about-panel-shell--{{ $motion['enter'] }}" style="--panel-delay: {{ 180 + ($loop->index * 150) }}ms;">
                     <article
                         class="about-panel about-motion about-orbit-border relative overflow-hidden rounded-xl border border-white/15 bg-slate-900 shadow-2xl"
@@ -506,11 +511,10 @@
                             --image-scale: ${1.1 - (Math.sin(progress * Math.PI) * .025)};
                         `"
                     >
-                        @if ($heroImagePath)
+                        @if ($panelImagePath)
                             <img
                                 class="about-panel-image"
-                                style="left: -{{ $loop->index * 100 }}%; width: {{ max(count($about['hero_panels']), 1) * 100 }}%;"
-                                src="{{ asset($heroImagePath) }}"
+                                src="{{ asset($panelImagePath) }}"
                                 alt=""
                                 aria-hidden="true"
                             />
@@ -518,10 +522,14 @@
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/15"></div>
 
                         <div class="absolute inset-x-0 bottom-0 z-[3] p-3 text-white sm:p-5">
-                            <div class="text-[10px] font-black tracking-[0.2em] text-accentDark">{{ $panel['number'] }}</div>
-                            <h2 class="mt-1 text-[12px] font-black sm:text-lg">
+                            <h2 class="text-[12px] font-black sm:text-lg">
                                 {{ $panel['title'] }}
                             </h2>
+                            @if (! empty($panel['description']))
+                                <p class="mt-2 max-w-sm text-[11px] font-semibold leading-relaxed text-white/75 sm:text-[12px]">
+                                    {{ $panel['description'] }}
+                                </p>
+                            @endif
                         </div>
                     </article>
                 </div>
@@ -529,7 +537,7 @@
         </div>
     </section>
 
-    <section class="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
+    <section class="grid gap-5 xl:grid-cols-[minmax(0,1.3fr)_minmax(280px,0.7fr)]">
         <article
             class="about-reactive about-orbit-border relative overflow-hidden rounded-2xl border border-line bg-[var(--bg-card)] p-5 sm:p-7"
             style="--border-speed: 9s;"
@@ -549,19 +557,26 @@
                     {{ $about['philosophy_text'] }}
                 </p>
 
-                <div class="mt-6 grid gap-3 sm:grid-cols-3">
+                
+                @php($focusCardColumns = min(max(count($about['focus_cards']), 1), 3))
+                <div
+                    class="mt-6 grid gap-3"
+                    style="grid-template-columns: repeat({{ $focusCardColumns }}, minmax(0, 1fr));"
+                >
                     @foreach ($about['focus_cards'] as $item)
                         <div
-                            class="about-reactive rounded-xl border border-line bg-soft p-3.5"
+                            class="about-reactive rounded-xl border border-line bg-soft px-3 py-2.5"
                             x-on:pointermove="react($event, 8)"
                             x-on:pointerleave="reset($event)"
                         >
-                            <div class="about-reactive-content">
-                                <span class="about-loop-icon inline-flex" style="--icon-delay: {{ $loop->index * 260 }}ms;">
-                                    <i data-lucide="{{ $item['icon'] }}" class="h-4 w-4 text-accent"></i>
+                            <div class="about-reactive-content flex items-center gap-3">
+                                <span class="about-loop-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--bg-card)] text-accent shadow-sm" style="--icon-delay: {{ $loop->index * 260 }}ms;">
+                                    <i data-lucide="{{ $item['icon'] }}" class="h-5 w-5"></i>
                                 </span>
-                                <div class="mt-3 text-[12px] font-black text-ink">{{ $item['title'] }}</div>
-                                <div class="mt-1 text-[11px] leading-relaxed text-muted">{{ $item['text'] }}</div>
+                                <div class="min-w-0">
+                                    <div class="truncate text-[12px] font-black leading-tight text-ink">{{ $item['title'] }}</div>
+                                    <div class="mt-0.5 line-clamp-2 text-[11px] leading-snug text-muted">{{ $item['text'] }}</div>
+                                </div>
                             </div>
                         </div>
                     @endforeach
@@ -570,29 +585,106 @@
         </article>
 
         <aside
-            class="about-reactive about-orbit-border relative overflow-hidden rounded-2xl border border-line bg-[var(--bg-card)] p-5 sm:p-6"
+            class="about-orbit-border relative overflow-hidden rounded-2xl border border-line bg-[var(--bg-card)] p-5 sm:p-6"
             style="--border-speed: 12s;"
+            x-data="{
+                selected: ['fast', 'quality'],
+                toggle(key) {
+                    if (this.selected.includes(key)) {
+                        if (this.selected.length === 1) return;
+                        this.selected = this.selected.filter((item) => item !== key);
+                        return;
+                    }
+
+                    this.selected = [...this.selected.slice(-1), key];
+                },
+                isActive(key) {
+                    return this.selected.includes(key);
+                },
+                apply() {
+                    window.alert(this.selected.length > 2
+                        ? @js(__('O sadece rüyalarda olur.'))
+                        : @js(__('Aynı fikirde olduğumuza sevindim.')));
+                }
+            }"
+            data-principle-switcher
             x-on:pointermove="react($event, 3.5)"
             x-on:pointerleave="reset($event)"
         >
             <div class="about-grid about-grid-drift pointer-events-none absolute inset-0"></div>
-            <div class="about-reactive-content flex items-center justify-between">
-                <div class="text-[11px] font-black uppercase tracking-[0.18em] text-accentDark">
-                    {{ $about['principles_title'] }}
-                </div>
-                <span class="about-loop-icon inline-flex">
-                    <i data-lucide="fingerprint" class="h-5 w-5 text-accent"></i>
-                </span>
-            </div>
-
-            <div class="about-reactive-content mt-5 space-y-2">
-                @foreach ($about['principles'] as $principle)
-                    <div class="about-principle group flex items-center gap-3 rounded-xl border border-transparent px-2 py-3 transition hover:border-line hover:bg-soft">
-                        <span class="relative z-[1] text-[10px] font-black text-accent">{{ $principle['number'] }}</span>
-                        <span class="h-px w-5 bg-line transition group-hover:w-8 group-hover:bg-accent"></span>
-                        <span class="relative z-[1] text-[12px] font-bold text-ink sm:text-[13px]">{{ $principle['text'] }}</span>
+            <div class="relative z-[1] flex min-h-[300px] items-center justify-center">
+                <div class="w-full max-w-xs space-y-3">
+                    <div class="text-center">
+                        <h2 class="text-[18px] font-black leading-tight text-ink">
+                            {{ __('Ürününüzü nasıl tercih edersiniz?') }}
+                        </h2>
+                        <p class="mx-auto mt-2 max-w-[260px] text-[11px] font-semibold leading-relaxed text-muted">
+                            {{ __('Lütfen size en uygun iki seçeneği belirleyin; üçüncüsü kendiliğinden elenir.') }}
+                        </p>
                     </div>
-                @endforeach
+
+                    @foreach ([
+                        ['key' => 'cheap', 'icon' => 'badge-dollar-sign', 'label' => __('Çok Ucuz')],
+                        ['key' => 'fast', 'icon' => 'rocket', 'label' => __('Çok Hızlı')],
+                        ['key' => 'quality', 'icon' => 'gem', 'label' => __('Çok Kaliteli')],
+                    ] as $option)
+                        <button
+                            type="button"
+                            class="group grid w-full grid-cols-[42px_1fr_56px] items-center overflow-hidden rounded-xl border p-1.5 text-left transition duration-300 ease-out"
+                            x-bind:class="isActive('{{ $option['key'] }}')
+                                ? 'border-accent/50 bg-accentSoft text-ink shadow-sm'
+                                : 'border-line bg-soft text-muted hover:border-accent/30 hover:text-ink'"
+                            x-on:click="toggle('{{ $option['key'] }}')"
+                            x-bind:aria-pressed="isActive('{{ $option['key'] }}')"
+                        >
+                            <span
+                                class="flex h-10 w-10 items-center justify-center rounded-lg transition duration-300 ease-out"
+                                x-bind:class="isActive('{{ $option['key'] }}') ? 'bg-accent text-white' : 'bg-[var(--bg-card)] text-muted'"
+                            >
+                                <i
+                                    data-lucide="{{ $option['icon'] }}"
+                                    class="h-[18px] w-[18px] transition duration-300 ease-out"
+                                    x-bind:class="isActive('{{ $option['key'] }}') ? 'scale-110 rotate-[-6deg]' : 'scale-100 rotate-0'"
+                                ></i>
+                            </span>
+
+                            <span class="min-w-0 px-3 text-[13px] font-black">{{ $option['label'] }}</span>
+
+                            <span
+                                class="relative h-8 w-14 overflow-hidden rounded-full border transition duration-300 ease-out"
+                                x-bind:class="isActive('{{ $option['key'] }}')
+                                    ? 'border-accent bg-accent shadow-inner'
+                                    : 'border-line bg-[var(--bg-card)] shadow-inner'"
+                            >
+                                <span
+                                    class="absolute inset-0 origin-left bg-white/20 transition duration-300 ease-out"
+                                    x-bind:class="isActive('{{ $option['key'] }}') ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0'"
+                                ></span>
+                                <span
+                                    class="absolute top-1 h-6 w-6 rounded-full bg-white shadow transition-all duration-300 ease-[cubic-bezier(.2,.8,.2,1)]"
+                                    x-bind:class="isActive('{{ $option['key'] }}') ? 'translate-x-7 scale-100' : 'translate-x-1 scale-90'"
+                                ></span>
+                            </span>
+                        </button>
+                    @endforeach
+
+                    <div class="grid grid-cols-3 gap-1.5 pt-1">
+                        @foreach (['cheap', 'fast', 'quality'] as $option)
+                            <span
+                                class="h-1.5 rounded-full transition"
+                                x-bind:class="isActive('{{ $option }}') ? 'bg-accent' : 'bg-line'"
+                            ></span>
+                        @endforeach
+                    </div>
+
+                    <button
+                        type="button"
+                        class="mt-2 inline-flex h-10 w-full items-center justify-center rounded-xl bg-accent px-4 text-[12px] font-black text-white shadow-sm transition hover:bg-accentDark"
+                        x-on:click="apply()"
+                    >
+                        {{ __('Uygula') }}
+                    </button>
+                </div>
             </div>
         </aside>
     </section>

@@ -34,16 +34,22 @@ class About extends Component
             }
         }
 
-        foreach (['hero_panels', 'focus_cards', 'principles'] as $field) {
+        foreach (['hero_panels', 'focus_cards'] as $field) {
             $about[$field] = $setting?->getTranslation($field, $language, false)
                 ?: config("about.{$field}.{$language}", []);
         }
+
+        $about['hero_panels'] = $this->normalizeHeroPanels(
+            $about['hero_panels'],
+            config('about.hero_image_path'),
+            $language,
+        );
 
         $contactSettings = \App\Models\ContactSetting::first();
 
         return view('livewire.web.about', [
             'about' => $about,
-            'heroImagePath' => $setting?->hero_image_path ?: config('about.hero_image_path'),
+            'heroImagePath' => config('about.hero_image_path'),
             'profileImagePath' => $setting?->profile_image_path ?: config('about.profile_image_path'),
             'profileIsPersonal' => (bool) $setting?->profile_is_personal,
             'privacyHidden' => (bool) $contactSettings?->privacy_hidden,
@@ -52,5 +58,25 @@ class About extends Component
             ->layout('components.layouts.web', [
                 'title' => $about['headline'].' - CV Manager',
             ]);
+    }
+
+    private function normalizeHeroPanels(mixed $items, ?string $fallbackImagePath, string $language): array
+    {
+        $items = is_array($items) ? array_values($items) : [];
+        $fallbackItems = config("about.hero_panels.{$language}", []);
+        $panels = [];
+
+        for ($index = 0; $index < 3; $index++) {
+            $item = is_array($items[$index] ?? null) ? $items[$index] : [];
+            $fallback = is_array($fallbackItems[$index] ?? null) ? $fallbackItems[$index] : [];
+
+            $panels[] = [
+                'image_path' => $item['image_path'] ?? $fallback['image_path'] ?? $fallbackImagePath,
+                'title' => $item['title'] ?? $fallback['title'] ?? '',
+                'description' => $item['description'] ?? $fallback['description'] ?? '',
+            ];
+        }
+
+        return $panels;
     }
 }
