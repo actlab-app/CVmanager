@@ -36,9 +36,9 @@
                     ->take(4);
             @endphp
 
-            <article class="group overflow-hidden rounded-2xl border border-line bg-[var(--bg-card)] shadow-sm">
+            <article class="group flex h-full flex-col overflow-visible rounded-2xl border border-line bg-[var(--bg-card)] shadow-sm">
                 <a href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}" class="block">
-                    <div class="relative aspect-[16/9] overflow-hidden bg-soft">
+                    <div class="relative aspect-[16/9] overflow-hidden rounded-t-2xl bg-soft">
                         @if ($cover)
                             <img
                                 class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
@@ -60,7 +60,7 @@
                     </div>
                 </a>
 
-                <div class="p-4 sm:p-5">
+                <div class="flex-1 p-4 sm:p-5">
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <h2 class="text-xl font-black text-ink">
@@ -83,24 +83,30 @@
 
                     <div class="mt-4 flex flex-wrap gap-2">
                         @foreach ($technologies as $technology)
-                            <span class="rounded-lg border border-line bg-soft px-2.5 py-1 text-[10px] font-bold text-muted">
-                                {{ $technology->name }}
+                            @php
+                                $technologyIcon = $technology->icon ?: 'code-2';
+                                $technologyIcon = $technologyIcon === 'code-bracket' ? 'code-2' : $technologyIcon;
+                            @endphp
+
+                            <span
+                                class="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-soft"
+                                title="{{ $technology->name }}"
+                            >
+                                @if ($technology->logo_path)
+                                    <img
+                                        class="h-5 w-5 object-contain"
+                                        src="{{ asset($technology->logo_path) }}"
+                                        alt="{{ $technology->name }}"
+                                    />
+                                @else
+                                    <i data-lucide="{{ $technologyIcon }}" class="h-4 w-4 text-accent"></i>
+                                @endif
                             </span>
                         @endforeach
                     </div>
-
-                    <div class="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                        <x-web.portfolio-link-buttons :project="$project" compact class="min-w-0 flex-1" />
-
-                        <a
-                            href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}"
-                            class="inline-flex shrink-0 items-center justify-center gap-2 text-[12px] font-black text-accent hover:text-accentDark"
-                        >
-                            {{ __('Projeyi İncele') }}
-                            <i data-lucide="arrow-right" class="h-4 w-4"></i>
-                        </a>
-                    </div>
                 </div>
+
+                <x-web.portfolio-link-buttons :project="$project" attached />
             </article>
         @empty
             <div class="col-span-full rounded-2xl border border-dashed border-line bg-[var(--bg-card)] px-5 py-16 text-center">

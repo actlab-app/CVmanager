@@ -301,7 +301,8 @@
             @endif
         </div>
 
-        <aside class="flex flex-col rounded-2xl border border-line bg-[var(--bg-card)] p-4 shadow-sm sm:p-5">
+        <aside class="flex flex-col overflow-visible rounded-2xl border border-line bg-[var(--bg-card)] shadow-sm">
+            <div class="p-4 sm:p-5">
             <div class="flex items-center gap-3 border-b border-line pb-4">
                 <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-accentSoft text-accent">
                     <i data-lucide="panels-top-left" class="h-5 w-5"></i>
@@ -335,7 +336,9 @@
                 </div>
             </dl>
 
-            <x-web.portfolio-link-buttons :project="$project" class="mt-auto pt-4" />
+            </div>
+
+            <x-web.portfolio-link-buttons :project="$project" :show-warning="true" attached class="mt-auto" />
         </aside>
     </section>
 
