@@ -1,8 +1,63 @@
 <div>
     <style>
-        @media print {
+        @media screen {
+            .cv-project-types-grid {
+                grid-template-columns: repeat(1, minmax(0, 1fr));
+            }
+
             .cv-project-type-card {
-                min-height: 36px !important;
+                align-items: flex-start;
+            }
+
+            .cv-project-type-icon {
+                align-self: flex-start;
+                margin-top: 2px;
+            }
+
+            .cv-project-type-title,
+            .cv-project-type-description {
+                overflow: visible;
+                overflow-wrap: anywhere;
+                text-overflow: clip;
+                white-space: normal;
+            }
+
+            .cv-project-type-description {
+                display: block;
+                -webkit-line-clamp: unset;
+                -webkit-box-orient: initial;
+            }
+        }
+
+        @media screen and (min-width: 640px) {
+            .cv-project-types-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media screen and (min-width: 1024px) {
+            .cv-project-types-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+        }
+
+        @media print {
+            .cv-project-types-section {
+                margin-top: 8px !important;
+                padding: 0 !important;
+            }
+
+            .cv-project-types-heading {
+                margin-bottom: 5px !important;
+            }
+
+            .cv-project-types-grid {
+                gap: 5px !important;
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
+
+            .cv-project-type-card {
+                min-height: 48px !important;
                 padding: 4px 5px !important;
                 align-items: center !important;
             }
@@ -28,7 +83,11 @@
             }
 
             .cv-project-type-description {
-                font-size: 7.5px !important;
+                display: -webkit-box !important;
+                overflow: hidden !important;
+                -webkit-box-orient: vertical !important;
+                -webkit-line-clamp: 3 !important;
+                font-size: 7.8px !important;
                 grid-column: 2 !important;
                 line-height: 1.15 !important;
                 margin: 0 !important;
@@ -166,27 +225,27 @@
             </div>
         </section>
 
-        <section class="mt-4 rounded-2xl bg-[var(--bg-card)] sm:mt-6">
+        <section class="cv-project-types-section mt-4 rounded-2xl bg-[var(--bg-card)] sm:mt-6">
             <div
-                class="mb-3 flex items-center gap-2 rounded-lg bg-accentSoft px-3 py-2 text-[12px] font-black tracking-wide text-accentDark sm:mb-4 sm:px-4 sm:text-[13px]">
+                class="cv-project-types-heading mb-3 flex items-center gap-2 rounded-lg bg-accentSoft px-3 py-2 text-[12px] font-black tracking-wide text-accentDark sm:mb-4 sm:px-4 sm:text-[13px]">
                 <span class="flex h-7 w-7 items-center justify-center rounded-lg bg-[var(--bg-card)] text-[17px]">
                     <i data-lucide="folder-kanban"></i>
                 </span>
                 {{ __('PROJE TİPLERİ') }}
             </div>
 
-            <div class="grid grid-cols-4 gap-2">
+            <div class="cv-project-types-grid grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($cvData['project_types'] as $projectType)
                     <div
-                        class="cv-project-type-card grid min-h-[70px] grid-cols-[28px_minmax(0,1fr)] grid-rows-[auto_auto] items-center gap-x-1 gap-y-1 rounded-xl border border-line bg-row px-2.5 py-2 text-ink">
+                        class="cv-project-type-card grid min-h-[70px] grid-cols-[28px_minmax(0,1fr)] grid-rows-[auto_auto] items-start gap-x-2 gap-y-1 rounded-xl border border-line bg-row px-3 py-2.5 text-ink">
                         <span
-                            class="cv-project-type-icon row-span-2 flex h-7 w-7 shrink-0 items-center justify-center self-center rounded-lg bg-[var(--bg-card)] text-accentDark">
+                            class="cv-project-type-icon row-span-2 mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center self-start rounded-lg bg-[var(--bg-card)] text-accentDark">
                             <i data-lucide="{{ data_get($projectType, 'icon', 'folder') }}" class="h-4 w-4"></i>
                         </span>
-                        <div class="cv-project-type-title min-w-0 truncate text-[11px] font-black leading-tight">
+                        <div class="cv-project-type-title min-w-0 break-words text-[12px] font-black leading-tight">
                             {{ data_get($projectType, 'type') }}
                         </div>
-                        <p class="cv-project-type-description min-w-0 line-clamp-2 text-[9.5px] font-medium leading-snug text-muted">
+                        <p class="cv-project-type-description min-w-0 break-words text-[11px] font-medium leading-snug text-muted">
                             {{ data_get($projectType, 'description') }}
                         </p>
                     </div>

@@ -226,13 +226,51 @@
       display: flex;
       max-width: min(360px, calc(100vw - 2rem));
       align-items: center;
-      gap: 0.85rem;
+      gap: 0.65rem;
       border: 1px solid var(--color-line);
       border-radius: 1rem;
       background: var(--bg-card);
       color: var(--color-ink);
-      padding: 0.8rem 0.95rem;
+      padding: 0.65rem 0.9rem 0.65rem 0.45rem;
       box-shadow: 0 18px 45px rgba(15, 23, 42, 0.18);
+      touch-action: pan-y;
+      transition: transform 0.25s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+      will-change: transform;
+    }
+
+    .reference-greeting.is-hidden {
+      transform: translateX(calc(100% - 38px));
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+    }
+
+    .reference-greeting.is-dragging {
+      transition: none;
+    }
+
+    .reference-greeting-toggle {
+      display: inline-flex;
+      width: 30px;
+      height: 42px;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--color-line);
+      border-radius: 0.75rem;
+      background: var(--color-accentSoft);
+      color: var(--color-accentDark);
+      cursor: pointer;
+    }
+
+    .reference-greeting-toggle:hover {
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .reference-greeting-content {
+      display: flex;
+      min-width: 0;
+      align-items: center;
+      gap: 0.85rem;
     }
 
     .reference-greeting img,
@@ -554,15 +592,27 @@
   </div>
 
   @if ($referenceToken)
-    <aside class="reference-greeting" aria-label="Referans karşılama mesajı">
-      @if ($referenceToken->image)
-        <img src="{{ asset($referenceToken->image) }}" alt="" />
-      @else
-        <span class="reference-greeting-placeholder">{{ str($referenceToken->name)->substr(0, 2)->upper() }}</span>
-      @endif
-      <div class="min-w-0">
-        <div class="reference-greeting-title">{{ __('Merhaba') }} {{ $referenceToken->name }}</div>
-        <div class="reference-greeting-text">{{ __('enjoy') }}</div>
+    <aside id="reference-greeting" class="reference-greeting" aria-label="Referans karşılama mesajı">
+      <button
+        type="button"
+        class="reference-greeting-toggle"
+        aria-label="{{ __('Karşılama mesajını gizle') }}"
+        aria-expanded="true"
+        data-reference-greeting-toggle
+      >
+        <i data-lucide="chevron-right"></i>
+      </button>
+
+      <div class="reference-greeting-content">
+        @if ($referenceToken->image)
+          <img src="{{ asset($referenceToken->image) }}" alt="" />
+        @else
+          <span class="reference-greeting-placeholder">{{ str($referenceToken->name)->substr(0, 2)->upper() }}</span>
+        @endif
+        <div class="min-w-0">
+          <div class="reference-greeting-title">{{ __('Merhaba') }} {{ $referenceToken->name }}</div>
+          <div class="reference-greeting-text">{{ __('enjoy') }}</div>
+        </div>
       </div>
     </aside>
   @endif
@@ -570,11 +620,13 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       if (window.lucide) window.lucide.createIcons();
+      initReferenceGreeting();
     });
 
     document.addEventListener('livewire:navigated', () => {
       if (window.lucide) window.lucide.createIcons();
       applyTheme(document.documentElement.classList.contains('dark'));
+      initReferenceGreeting();
     });
 
     document.addEventListener('livewire:init', () => {
@@ -606,6 +658,85 @@
       const isDark = document.documentElement.classList.contains('dark');
       applyTheme(!isDark);
       localStorage.setItem('cv-theme', !isDark ? 'dark' : 'light');
+    }
+
+    function initReferenceGreeting() {
+      const greeting = document.getElementById('reference-greeting');
+      const toggle = greeting?.querySelector('[data-reference-greeting-toggle]');
+
+      if (!greeting || !toggle) {
+        return;
+      }
+
+      const storageKey = 'reference-greeting-hidden';
+      const setHidden = (hidden) => {
+        greeting.classList.toggle('is-hidden', hidden);
+        toggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+        toggle.setAttribute('aria-label', hidden ? '{{ __('Karşılama mesajını göster') }}' : '{{ __('Karşılama mesajını gizle') }}');
+        toggle.querySelector('[data-lucide]')?.setAttribute('data-lucide', hidden ? 'chevron-left' : 'chevron-right');
+        localStorage.setItem(storageKey, hidden ? '1' : '0');
+        if (window.lucide) window.lucide.createIcons();
+      };
+
+      setHidden(localStorage.getItem(storageKey) === '1');
+
+      if (greeting.dataset.referenceGreetingReady === '1') {
+        return;
+      }
+
+      greeting.dataset.referenceGreetingReady = '1';
+
+      toggle.addEventListener('click', () => {
+        setHidden(!greeting.classList.contains('is-hidden'));
+      });
+
+      let startX = 0;
+      let currentX = 0;
+      let dragging = false;
+
+      greeting.addEventListener('pointerdown', (event) => {
+        if (
+          event.button !== 0
+          || greeting.classList.contains('is-hidden')
+          || event.target.closest('[data-reference-greeting-toggle]')
+        ) {
+          return;
+        }
+
+        startX = event.clientX;
+        currentX = event.clientX;
+        dragging = true;
+        greeting.classList.add('is-dragging');
+        greeting.setPointerCapture(event.pointerId);
+      });
+
+      greeting.addEventListener('pointermove', (event) => {
+        if (!dragging) {
+          return;
+        }
+
+        currentX = event.clientX;
+        const deltaX = Math.max(0, currentX - startX);
+        greeting.style.transform = deltaX ? `translateX(${deltaX}px)` : '';
+      });
+
+      const endDrag = () => {
+        if (!dragging) {
+          return;
+        }
+
+        const deltaX = currentX - startX;
+        dragging = false;
+        greeting.classList.remove('is-dragging');
+        greeting.style.transform = '';
+
+        if (deltaX > 70) {
+          setHidden(true);
+        }
+      };
+
+      greeting.addEventListener('pointerup', endDrag);
+      greeting.addEventListener('pointercancel', endDrag);
     }
 
     applyTheme(document.documentElement.classList.contains('dark'));
