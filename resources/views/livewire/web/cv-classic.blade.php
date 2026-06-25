@@ -231,7 +231,7 @@
                     @if ($portfolioUrl)
                         <a class="classic-chip rounded-full border border-[var(--classic-line)] bg-[var(--bg-card)] px-2.5 py-1 hover:text-[var(--classic-blue)]"
                             href="{{ $portfolioUrl }}" target="_blank" rel="noopener noreferrer">
-                            {{ __('Portfolyo') }}
+                            {{ __('Portfolyo') }}: {{ $portfolioUrl }}
                         </a>
                     @endif
                 </div>

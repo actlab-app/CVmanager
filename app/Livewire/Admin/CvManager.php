@@ -68,7 +68,7 @@ class CvManager extends Component
     {
         $record = CvRecord::first();
 
-        if (! $record) {
+        if (!$record) {
             return;
         }
 
@@ -100,19 +100,19 @@ class CvManager extends Component
 
     public function updated(string $property, mixed $value): void
     {
-        if (! preg_match('/^([a-z_]+)\.(tr|en)\.([^.]+)\.icon$/', $property, $matches)) {
+        if (!preg_match('/^([a-z_]+)\.(tr|en)\.([^.]+)\.icon$/', $property, $matches)) {
             return;
         }
 
         [, $field, $lang, $rowKey] = $matches;
 
-        if (! isset(self::REPEATER_SCHEMAS[$field])) {
+        if (!isset(self::REPEATER_SCHEMAS[$field])) {
             return;
         }
 
         $otherLang = $lang === 'tr' ? 'en' : 'tr';
         $items = $this->{$field};
-        if (! isset($items[$otherLang][$rowKey])) {
+        if (!isset($items[$otherLang][$rowKey])) {
             return;
         }
 
@@ -122,7 +122,7 @@ class CvManager extends Component
 
     public function addItem(string $field): void
     {
-        if (! isset(self::REPEATER_SCHEMAS[$field])) {
+        if (!isset(self::REPEATER_SCHEMAS[$field])) {
             return;
         }
 
@@ -137,7 +137,7 @@ class CvManager extends Component
 
     public function removeItem(string $field, string $rowKey): void
     {
-        if (! isset(self::REPEATER_SCHEMAS[$field])) {
+        if (!isset(self::REPEATER_SCHEMAS[$field])) {
             return;
         }
 
@@ -147,7 +147,7 @@ class CvManager extends Component
 
         $this->repeaterOrder[$field] = array_values(array_filter(
             $this->repeaterOrder[$field],
-            fn (string $key): bool => $key !== $rowKey,
+            fn(string $key): bool => $key !== $rowKey,
         ));
     }
 
@@ -164,7 +164,7 @@ class CvManager extends Component
     public function save(): void
     {
         $this->validate([
-            'qr_url' => ['nullable', 'url:http,https', 'max:2048'],
+            'qr_url' => ['nullable', 'max:2048'],
         ]);
 
         $record = CvRecord::firstOrNew();
@@ -193,7 +193,7 @@ class CvManager extends Component
 
     private function moveItem(string $field, string $rowKey, int $direction): void
     {
-        if (! isset(self::REPEATER_SCHEMAS[$field])) {
+        if (!isset(self::REPEATER_SCHEMAS[$field])) {
             return;
         }
 
@@ -205,7 +205,7 @@ class CvManager extends Component
 
         $target = $index + $direction;
 
-        if (! isset($this->repeaterOrder[$field][$target])) {
+        if (!isset($this->repeaterOrder[$field][$target])) {
             return;
         }
 
@@ -217,12 +217,12 @@ class CvManager extends Component
 
     private function normalizeItems(mixed $items, array $schema): array
     {
-        if (! is_array($items)) {
+        if (!is_array($items)) {
             return [];
         }
 
         return array_map(
-            fn (mixed $item): array => is_array($item) ? array_replace($schema, $item) : $schema,
+            fn(mixed $item): array => is_array($item) ? array_replace($schema, $item) : $schema,
             $items,
         );
     }
@@ -232,7 +232,7 @@ class CvManager extends Component
         $itemsByLanguage = $this->{$field};
         $keyedItems = ['tr' => [], 'en' => []];
         $maxCount = max(array_map(
-            fn (string $lang): int => count($itemsByLanguage[$lang]),
+            fn(string $lang): int => count($itemsByLanguage[$lang]),
             self::LANGUAGES,
         ));
 
@@ -252,7 +252,7 @@ class CvManager extends Component
     private function orderedItems(string $field, string $lang): array
     {
         return array_map(
-            fn (string $rowKey): array => $this->{$field}[$lang][$rowKey],
+            fn(string $rowKey): array => $this->{$field}[$lang][$rowKey],
             $this->repeaterOrder[$field],
         );
     }
