@@ -15,6 +15,7 @@ class CvRecordSeeder extends Seeder
         $tr = [
             'job_title' => 'Kıdemli Yazılım Geliştirici',
             'about_content' => 'Projelerin uçtan uca teslim süreçlerinde aktif olarak yer alıyorum. Takım çalışmasına yatkınım ve yeni teknolojilere hızlıca adapte olabilirim.<br><br>Yüksek performanslı backend servisleri ve kullanıcı dostu arayüzler inşa etmekten keyif alıyorum.',
+            'classic_profile_summary' => 'Full-stack web uygulamaları, yönetim panelleri ve API entegrasyonları geliştiren yazılım geliştirici. Backend servisleri, kullanıcı dostu arayüzler ve teslimat süreçlerinde aktif sorumluluk alır.',
             'quick_infos' => [
                 ['icon' => 'briefcase', 'title' => 'Deneyim', 'value' => '5+ Yıl'],
                 ['icon' => 'map-pin', 'title' => 'Konum', 'value' => 'İstanbul / Türkiye'],
@@ -26,8 +27,13 @@ class CvRecordSeeder extends Seeder
                 ['icon' => 'graduation-cap', 'degree' => 'Lise', 'school' => 'Fen Lisesi'],
             ],
             'experiences' => [
-                ['icon' => 'building', 'company' => 'Tech Corp', 'description' => 'Backend Geliştirici (2020 - Günümüz). API mimarisi tasarımı ve geliştirilmesi.'],
-                ['icon' => 'layout', 'company' => 'Creative Agency', 'description' => 'Junior Full-Stack Geliştirici (2018 - 2020). Kurumsal firma web siteleri.'],
+                [
+                    'icon' => 'building',
+                    'company' => 'Tech Corp',
+                    'description' => 'Backend Geliştirici (2020 - Günümüz). API mimarisi tasarımı ve geliştirilmesi.',
+                    'detailed_description' => "- Projelerin analiz, geliştirme, test ve teslimat süreçlerinde aktif rol aldı.\n- Yüksek performanslı API mimarileri ve iş odaklı yönetim panelleri geliştirdi.",
+                ],
+                ['icon' => 'layout', 'company' => 'Creative Agency', 'description' => 'Junior Full-Stack Geliştirici (2018 - 2020). Kurumsal firma web siteleri.', 'detailed_description' => ''],
             ],
             'skills' => [
                 ['icon' => 'code', 'category' => 'Frontend', 'details' => 'React, Vue, Tailwind, JavaScript ES6+'],
@@ -37,12 +43,13 @@ class CvRecordSeeder extends Seeder
             'project_types' => [
                 ['icon' => 'shopping-cart', 'type' => 'E-Ticaret', 'description' => 'Büyük ölçekli, mikroservis mimarili alışveriş platformları.'],
                 ['icon' => 'users', 'type' => 'İnsan Kaynakları', 'description' => 'Kurum içi performans ve süreç yönetim yazılımları.'],
-            ]
+            ],
         ];
 
         $en = [
             'job_title' => 'Senior Software Developer',
             'about_content' => 'I actively participate in the end-to-end delivery processes of projects. I am a team player and can quickly adapt to new technologies.<br><br>I enjoy building high-performance backend services and user-friendly interfaces.',
+            'classic_profile_summary' => 'Full-stack software developer focused on end-to-end web applications, admin panels, and API integrations. Takes active responsibility in backend services, user-friendly interfaces, and delivery workflows.',
             'quick_infos' => [
                 ['icon' => 'briefcase', 'title' => 'Experience', 'value' => '5+ Years'],
                 ['icon' => 'map-pin', 'title' => 'Location', 'value' => 'Istanbul / Turkey'],
@@ -54,8 +61,13 @@ class CvRecordSeeder extends Seeder
                 ['icon' => 'graduation-cap', 'degree' => 'High School', 'school' => 'Science High School'],
             ],
             'experiences' => [
-                ['icon' => 'building', 'company' => 'Tech Corp', 'description' => 'Backend Developer (2020 - Present). API architecture design and development.'],
-                ['icon' => 'layout', 'company' => 'Creative Agency', 'description' => 'Junior Full-Stack Developer (2018 - 2020). Corporate websites.'],
+                [
+                    'icon' => 'building',
+                    'company' => 'Tech Corp',
+                    'description' => 'Backend Developer (2020 - Present). API architecture design and development.',
+                    'detailed_description' => "- Actively contributed to analysis, development, testing, and delivery workflows.\n- Built high-performance API architectures and business-focused admin panels.",
+                ],
+                ['icon' => 'layout', 'company' => 'Creative Agency', 'description' => 'Junior Full-Stack Developer (2018 - 2020). Corporate websites.', 'detailed_description' => ''],
             ],
             'skills' => [
                 ['icon' => 'code', 'category' => 'Frontend', 'details' => 'React, Vue, Tailwind, JavaScript ES6+'],
@@ -65,10 +77,10 @@ class CvRecordSeeder extends Seeder
             'project_types' => [
                 ['icon' => 'shopping-cart', 'type' => 'E-Commerce', 'description' => 'Large scale shopping platforms with microservice architecture.'],
                 ['icon' => 'users', 'type' => 'Human Resources', 'description' => 'Internal performance and process management software.'],
-            ]
+            ],
         ];
 
-        $fields = ['job_title', 'about_content', 'quick_infos', 'educations', 'experiences', 'skills', 'project_types'];
+        $fields = ['job_title', 'about_content', 'classic_profile_summary', 'quick_infos', 'educations', 'experiences', 'skills', 'project_types'];
 
         foreach ($fields as $field) {
             $demoRecord->setTranslation($field, 'tr', $tr[$field]);

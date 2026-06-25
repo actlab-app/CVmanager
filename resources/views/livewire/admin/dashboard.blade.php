@@ -45,52 +45,106 @@
         </flux:card>
     </div>
 
-    <flux:card>
-        <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div class="flex items-start gap-4">
-                @php($selectedTheme = $themeColors[$webThemeColor] ?? $themeColors['green'])
-                <span
-                    class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-sm"
-                    style="background: {{ $selectedTheme['light']['accent'] }}"
-                >
-                    <flux:icon.globe-alt class="size-6" />
-                </span>
-                <div>
-                    <flux:heading size="lg">Web Tema Rengi</flux:heading>
-                    <flux:text class="mt-1 max-w-2xl text-sm text-zinc-500">
-                        Public web arayüzünde kullanılan vurgu rengini seçer. CV, portfolyo, iletişim ve menü vurguları bu palete göre güncellenir.
-                    </flux:text>
-                    <flux:badge color="zinc" class="mt-3">
-                        Seçili: {{ $selectedTheme['label'] }}
-                    </flux:badge>
+    <div class="grid gap-4 lg:grid-cols-2">
+        <flux:card>
+            <div class="flex h-full flex-col gap-5 justify-between">
+                <div class="flex items-start gap-4">
+                    @php($selectedTheme = $themeColors[$webThemeColor] ?? $themeColors['green'])
+                    <span
+                        class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-sm"
+                        style="background: {{ $selectedTheme['light']['accent'] }}"
+                    >
+                        <flux:icon.globe-alt class="size-6" />
+                    </span>
+                    <div>
+                        <flux:heading size="lg">Web Tema Rengi</flux:heading>
+                        <flux:text class="mt-1 max-w-2xl text-sm text-zinc-500">
+                            Public web arayüzünde kullanılan vurgu rengini seçer. CV, portfolyo, iletişim ve menü vurguları bu palete göre güncellenir.
+                        </flux:text>
+                        <flux:badge color="zinc" class="mt-3">
+                            Seçili: {{ $selectedTheme['label'] }}
+                        </flux:badge>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 sm:grid-cols-6">
+                    @foreach ($themeColors as $key => $themeColor)
+                        <button
+                            type="button"
+                            wire:click="selectWebThemeColor('{{ $key }}')"
+                            title="{{ $themeColor['label'] }}"
+                            aria-label="{{ $themeColor['label'] }} tema rengini seç"
+                            @class([
+                                'group relative flex h-12 items-center justify-center rounded-xl border transition hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-zinc-900',
+                                'border-zinc-900 ring-2 ring-zinc-900 ring-offset-2 dark:border-white dark:ring-white dark:ring-offset-zinc-900' => $webThemeColor === $key,
+                                'border-zinc-200 dark:border-zinc-700' => $webThemeColor !== $key,
+                            ])
+                            style="background: linear-gradient(135deg, {{ $themeColor['light']['accent'] }}, {{ $themeColor['light']['dark'] }}); --tw-ring-color: {{ $themeColor['light']['accent'] }};"
+                        >
+                            @if ($webThemeColor === $key)
+                                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-zinc-900 shadow-sm">
+                                    <flux:icon.check class="size-4" />
+                                </span>
+                            @endif
+                            <span class="sr-only">{{ $themeColor['label'] }}</span>
+                        </button>
+                    @endforeach
                 </div>
             </div>
+        </flux:card>
 
-            <div class="grid grid-cols-4 gap-2 sm:grid-cols-6 lg:w-[360px]">
-                @foreach ($themeColors as $key => $themeColor)
-                    <button
-                        type="button"
-                        wire:click="selectWebThemeColor('{{ $key }}')"
-                        title="{{ $themeColor['label'] }}"
-                        aria-label="{{ $themeColor['label'] }} tema rengini seç"
-                        @class([
-                            'group relative flex h-12 items-center justify-center rounded-xl border transition hover:scale-[1.03] focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-zinc-900',
-                            'border-zinc-900 ring-2 ring-zinc-900 ring-offset-2 dark:border-white dark:ring-white dark:ring-offset-zinc-900' => $webThemeColor === $key,
-                            'border-zinc-200 dark:border-zinc-700' => $webThemeColor !== $key,
-                        ])
-                        style="background: linear-gradient(135deg, {{ $themeColor['light']['accent'] }}, {{ $themeColor['light']['dark'] }}); --tw-ring-color: {{ $themeColor['light']['accent'] }};"
-                    >
-                        @if ($webThemeColor === $key)
-                            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-white/95 text-zinc-900 shadow-sm">
-                                <flux:icon.check class="size-4" />
+        <flux:card>
+            <div class="flex h-full flex-col gap-5 justify-between">
+                <div class="flex items-start gap-4">
+                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700 shadow-sm dark:bg-blue-950/40 dark:text-blue-300">
+                        <flux:icon.file-text class="size-6" />
+                    </span>
+                    <div>
+                        <flux:heading size="lg">Tercih Edilen CV Teması</flux:heading>
+                        <flux:text class="mt-1 max-w-2xl text-sm text-zinc-500">
+                            Public CV sayfasında kullanılacak yazdırılabilir özgeçmiş görünümünü seçer. Modern tema mevcut görsel düzeni, klasik tema ise ATS uyumlu sade başvuru düzenini kullanır.
+                        </flux:text>
+                        <flux:badge color="blue" class="mt-3">
+                            Seçili: {{ $cvThemes[$preferredCvTheme]['label'] ?? 'Modern CV' }}
+                        </flux:badge>
+                    </div>
+                </div>
+
+                <div class="grid gap-2 sm:grid-cols-2">
+                    @foreach ($cvThemes as $key => $cvTheme)
+                        <button
+                            type="button"
+                            wire:click="selectPreferredCvTheme('{{ $key }}')"
+                            @class([
+                                'flex min-h-[92px] items-start gap-3 rounded-xl border p-3 text-left transition hover:border-blue-400 hover:bg-blue-50/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:hover:bg-blue-950/20 dark:focus:ring-offset-zinc-900',
+                                'border-blue-500 bg-blue-50 ring-1 ring-blue-500 dark:border-blue-400 dark:bg-blue-950/30' => $preferredCvTheme === $key,
+                                'border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900' => $preferredCvTheme !== $key,
+                            ])
+                        >
+                            <span @class([
+                                'mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg',
+                                'bg-blue-600 text-white dark:bg-blue-400 dark:text-zinc-950' => $preferredCvTheme === $key,
+                                'bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300' => $preferredCvTheme !== $key,
+                            ])>
+                                <flux:icon :name="$cvTheme['icon']" class="size-4.5" />
                             </span>
-                        @endif
-                        <span class="sr-only">{{ $themeColor['label'] }}</span>
-                    </button>
-                @endforeach
+                            <span class="min-w-0">
+                                <span class="flex items-center gap-2 text-sm font-black text-zinc-900 dark:text-white">
+                                    {{ $cvTheme['label'] }}
+                                    @if ($preferredCvTheme === $key)
+                                        <flux:icon.check class="size-4 text-blue-600 dark:text-blue-300" />
+                                    @endif
+                                </span>
+                                <span class="mt-1 block text-xs leading-relaxed text-zinc-500">
+                                    {{ $cvTheme['description'] }}
+                                </span>
+                            </span>
+                        </button>
+                    @endforeach
+                </div>
             </div>
-        </div>
-    </flux:card>
+        </flux:card>
+    </div>
 
     <div class="grid gap-4 lg:grid-cols-3">
     <flux:card>

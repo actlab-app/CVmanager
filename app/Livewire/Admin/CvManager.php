@@ -16,12 +16,13 @@ class CvManager extends Component
     private const TEXT_FIELDS = [
         'job_title',
         'about_content',
+        'classic_profile_summary',
     ];
 
     private const REPEATER_SCHEMAS = [
         'quick_infos' => ['icon' => 'info', 'title' => '', 'value' => ''],
         'educations' => ['icon' => 'graduation-cap', 'degree' => '', 'school' => ''],
-        'experiences' => ['icon' => 'briefcase-business', 'company' => '', 'description' => ''],
+        'experiences' => ['icon' => 'briefcase-business', 'company' => '', 'description' => '', 'detailed_description' => ''],
         'skills' => ['icon' => 'code-xml', 'category' => '', 'details' => ''],
         'project_types' => ['icon' => 'folder-kanban', 'type' => '', 'description' => ''],
     ];
@@ -36,10 +37,12 @@ class CvManager extends Component
         'tr' => [
             'job_title' => '',
             'about_content' => '',
+            'classic_profile_summary' => '',
         ],
         'en' => [
             'job_title' => '',
             'about_content' => '',
+            'classic_profile_summary' => '',
         ],
     ];
 

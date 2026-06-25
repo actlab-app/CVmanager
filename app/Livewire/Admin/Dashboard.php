@@ -26,6 +26,8 @@ class Dashboard extends Component
 
     public string $webThemeColor = 'green';
 
+    public string $preferredCvTheme = 'modern';
+
     public function mount(): void
     {
         $this->privacyHidden = (bool) ContactSetting::first()?->privacy_hidden;
@@ -33,6 +35,7 @@ class Dashboard extends Component
         $this->noindex = (bool) $siteSettings?->noindex;
         $this->blockVisitorsWithoutReferenceToken = (bool) $siteSettings?->block_visitors_without_reference_token;
         $this->webThemeColor = $this->normalizeThemeColor($siteSettings?->web_theme_color);
+        $this->preferredCvTheme = $this->normalizeCvTheme($siteSettings?->preferred_cv_theme);
     }
 
     public function updatedPrivacyHidden(bool $hidden): void
@@ -78,6 +81,19 @@ class Dashboard extends Component
         );
     }
 
+    public function selectPreferredCvTheme(string $theme): void
+    {
+        $theme = $this->normalizeCvTheme($theme);
+        $this->preferredCvTheme = $theme;
+
+        SiteSetting::firstOrCreate()->update(['preferred_cv_theme' => $theme]);
+
+        Flux::toast(
+            'Tercih edilen CV teması güncellendi.',
+            variant: 'success',
+        );
+    }
+
     public function render(): View
     {
         return view('livewire.admin.dashboard', [
@@ -85,6 +101,18 @@ class Dashboard extends Component
             'technologyCount' => PortfolioTechnology::count(),
             'unreadMessageCount' => ContactMessage::whereNull('read_at')->count(),
             'themeColors' => config('web-theme-colors'),
+            'cvThemes' => [
+                'modern' => [
+                    'label' => 'Modern CV',
+                    'description' => 'Mevcut görsel, kartlı ve portfolyo odaklı CV görünümü.',
+                    'icon' => 'sparkles',
+                ],
+                'classic' => [
+                    'label' => 'Klasik CV',
+                    'description' => 'ATS uyumlu, taranabilir ve seçilmiş proje başarılarını öne çıkaran görünüm.',
+                    'icon' => 'file-text',
+                ],
+            ],
             'referenceTokenChart' => $this->referenceTokenChart(),
         ]);
     }
@@ -115,5 +143,12 @@ class Dashboard extends Component
         return array_key_exists((string) $color, config('web-theme-colors'))
             ? (string) $color
             : 'green';
+    }
+
+    private function normalizeCvTheme(?string $theme): string
+    {
+        return in_array($theme, ['modern', 'classic'], true)
+            ? (string) $theme
+            : 'modern';
     }
 }

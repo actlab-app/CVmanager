@@ -15,6 +15,7 @@ class CvRecord extends Model
     public $translatable = [
         'job_title',
         'about_content',
+        'classic_profile_summary',
         'quick_infos',
         'educations',
         'experiences',

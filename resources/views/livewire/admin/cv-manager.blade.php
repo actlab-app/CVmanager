@@ -1,6 +1,8 @@
-@php($isTurkish = $activeLang === 'tr')
+@php
+    $isTurkish = $activeLang === 'tr';
+@endphp
 
-<div class="space-y-6">
+<form wire:submit="save" class="space-y-6">
     <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div class="flex items-center gap-3">
             <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-700">
@@ -12,19 +14,29 @@
             </div>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
             <flux:badge color="zinc" size="sm" class="mr-1">
                 <flux:icon.language class="size-3.5!" />
                 Dil
             </flux:badge>
-            <flux:button size="sm" :variant="$isTurkish ? 'primary' : 'ghost'" wire:click="switchLang('tr')">
-                🇹🇷 Türkçe
+            <flux:button type="button" size="sm" :variant="$isTurkish ? 'primary' : 'ghost'" wire:click="switchLang('tr')">
+                Türkçe
             </flux:button>
-            <flux:button size="sm" :variant="$isTurkish ? 'ghost' : 'primary'" wire:click="switchLang('en')">
-                🇬🇧 English
+            <flux:button type="button" size="sm" :variant="$isTurkish ? 'ghost' : 'primary'" wire:click="switchLang('en')">
+                English
+            </flux:button>
+            <flux:button type="submit" variant="primary" icon="check" wire:loading.attr="disabled">
+                <span wire:loading.remove wire:target="save">Kaydet</span>
+                <span wire:loading wire:target="save">Kaydediliyor...</span>
             </flux:button>
         </div>
     </div>
+
+    @if ($errors->any())
+        <flux:callout variant="danger" icon="exclamation-triangle" heading="Formda düzeltilmesi gereken alanlar var.">
+            {{ $errors->first() }}
+        </flux:callout>
+    @endif
 
     <flux:card>
         <div class="mb-4 flex items-center gap-2">
@@ -44,9 +56,9 @@
             </div>
 
             <flux:input
-                :label="$isTurkish ? 'Meslek Ünvanı (TR)' : 'Job Title (EN)'"
+                :label="$isTurkish ? 'Meslek Unvanı (TR)' : 'Job Title (EN)'"
                 wire:model="translations.{{ $activeLang }}.job_title"
-                :placeholder="$isTurkish ? 'Meslek ünvanı...' : 'Job title...'"
+                :placeholder="$isTurkish ? 'Meslek unvanı...' : 'Job title...'"
                 icon="briefcase"
             />
 
@@ -59,23 +71,37 @@
         </div>
     </flux:card>
 
-    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div class="lg:relative lg:h-full lg:min-h-0">
-            <div class="space-y-6 lg:absolute lg:inset-0 lg:overflow-y-auto lg:pr-2">
-                <x-admin.cv-repeater
-                    field="quick_infos"
-                    :items="$quick_infos[$activeLang]"
-                    :order="$repeaterOrder['quick_infos']"
-                    :lang="$activeLang"
-                    :title="$isTurkish ? 'Hızlı Bilgiler' : 'Quick Info'"
-                    icon="list-bullet"
-                    primary-field="title"
-                    :primary-placeholder="$isTurkish ? 'Başlık' : 'Title'"
-                    secondary-field="value"
-                    :secondary-placeholder="$isTurkish ? 'Değer' : 'Value'"
-                />
-            </div>
+    <flux:card>
+        <div class="mb-4 flex items-center gap-2">
+            <flux:icon.file-text class="size-5 text-zinc-500" />
+            <flux:heading size="lg">Klasik CV Bilgileri</flux:heading>
         </div>
+
+        <flux:text class="mb-4 max-w-3xl text-sm text-zinc-500">
+            Klasik CV teması; ATS uyumlu, satır satır taranabilir ve başvuru odaklı bir çıktı üretir. Bu alanlar boş bırakılırsa mevcut CV ve portfolyo verilerinden otomatik özet oluşturulur.
+        </flux:text>
+
+        <flux:textarea
+            :label="$isTurkish ? 'Profesyonel Özet (TR)' : 'Professional Summary (EN)'"
+            wire:model="translations.{{ $activeLang }}.classic_profile_summary"
+            :placeholder="$isTurkish ? 'Klasik CV için 3-5 cümlelik, sonuç ve deneyim odaklı özet...' : 'A 3-5 sentence result-focused summary for the classic CV...'"
+            rows="4"
+        />
+    </flux:card>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <x-admin.cv-repeater
+            field="quick_infos"
+            :items="$quick_infos[$activeLang]"
+            :order="$repeaterOrder['quick_infos']"
+            :lang="$activeLang"
+            :title="$isTurkish ? 'Hızlı Bilgiler' : 'Quick Info'"
+            icon="list-bullet"
+            primary-field="title"
+            :primary-placeholder="$isTurkish ? 'Başlık' : 'Title'"
+            secondary-field="value"
+            :secondary-placeholder="$isTurkish ? 'Değer' : 'Value'"
+        />
 
         <div class="space-y-6">
             <x-admin.cv-repeater
@@ -102,6 +128,8 @@
                 :primary-placeholder="$isTurkish ? 'Şirket' : 'Company'"
                 secondary-field="description"
                 :secondary-placeholder="$isTurkish ? 'Açıklama' : 'Description'"
+                tertiary-field="detailed_description"
+                :tertiary-placeholder="$isTurkish ? 'Detaylı açıklama (sadece klasik CV)' : 'Detailed description (classic CV only)'"
             />
         </div>
     </div>
@@ -135,16 +163,16 @@
     </div>
 
     <div
-        class="flex items-center justify-end gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-4 dark:border-zinc-700 dark:bg-zinc-800"
+        class="flex flex-col gap-3 rounded-xl border border-zinc-200 bg-zinc-50 px-5 py-4 sm:flex-row sm:items-center sm:justify-end dark:border-zinc-700 dark:bg-zinc-800"
     >
         <flux:text class="text-sm text-zinc-400">
             Tüm dillerdeki veriler aynı anda kaydedilir.
         </flux:text>
-        <flux:button variant="primary" icon="check" wire:click="save" wire:loading.attr="disabled">
+        <flux:button type="submit" variant="primary" icon="check" wire:loading.attr="disabled">
             <span wire:loading.remove wire:target="save">Kaydet</span>
             <span wire:loading wire:target="save">Kaydediliyor...</span>
         </flux:button>
     </div>
 
     <x-admin.lucide-icon-picker :lang="$activeLang" />
-</div>
+</form>

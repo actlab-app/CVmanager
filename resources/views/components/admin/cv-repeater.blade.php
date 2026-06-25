@@ -9,6 +9,8 @@
     'primaryPlaceholder',
     'secondaryField',
     'secondaryPlaceholder',
+    'tertiaryField' => null,
+    'tertiaryPlaceholder' => null,
 ])
 
 @php
@@ -27,44 +29,56 @@
             <flux:badge size="sm" color="zinc">{{ count($items) }}</flux:badge>
         </div>
 
-        <flux:button size="sm" variant="primary" icon="plus" wire:click="addItem('{{ $field }}')">
+        <flux:button type="button" size="sm" variant="primary" icon="plus" wire:click="addItem('{{ $field }}')">
             {{ $addLabel }}
         </flux:button>
     </div>
 
     <div class="space-y-4">
         @forelse ($order as $position => $rowKey)
-            @php($item = $items[$rowKey])
+            @php
+                $item = $items[$rowKey];
+            @endphp
+
             <div
                 class="group flex items-start gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800"
                 wire:key="{{ $field }}-{{ $lang }}-{{ $rowKey }}"
             >
-                <div class="flex min-w-0 flex-1 items-center gap-2">
+                <div class="flex min-w-0 flex-1 items-start gap-2">
                     <x-admin.lucide-icon-select
                         :value="$item['icon'] ?? ''"
                         :lang="$lang"
                         wire:model.live="{{ $field }}.{{ $lang }}.{{ $rowKey }}.icon"
                     />
 
-                    <div class="min-w-0 flex-1">
-                        <flux:input
-                            size="sm"
-                            :placeholder="$primaryPlaceholder"
-                            wire:model="{{ $field }}.{{ $lang }}.{{ $rowKey }}.{{ $primaryField }}"
-                        />
-                    </div>
+                    <div class="min-w-0 flex-1 space-y-2">
+                        <div class="grid gap-2 md:grid-cols-2">
+                            <flux:input
+                                size="sm"
+                                :placeholder="$primaryPlaceholder"
+                                wire:model="{{ $field }}.{{ $lang }}.{{ $rowKey }}.{{ $primaryField }}"
+                            />
 
-                    <div class="min-w-0 flex-1">
-                        <flux:input
-                            size="sm"
-                            :placeholder="$secondaryPlaceholder"
-                            wire:model="{{ $field }}.{{ $lang }}.{{ $rowKey }}.{{ $secondaryField }}"
-                        />
+                            <flux:input
+                                size="sm"
+                                :placeholder="$secondaryPlaceholder"
+                                wire:model="{{ $field }}.{{ $lang }}.{{ $rowKey }}.{{ $secondaryField }}"
+                            />
+                        </div>
+
+                        @if ($tertiaryField)
+                            <flux:textarea
+                                :placeholder="$tertiaryPlaceholder"
+                                wire:model="{{ $field }}.{{ $lang }}.{{ $rowKey }}.{{ $tertiaryField }}"
+                                rows="3"
+                            />
+                        @endif
                     </div>
                 </div>
 
                 <div class="flex shrink-0 flex-col gap-1">
                     <flux:button
+                        type="button"
                         size="xs"
                         variant="ghost"
                         icon="chevron-up"
@@ -72,6 +86,7 @@
                         :disabled="$position === 0"
                     />
                     <flux:button
+                        type="button"
                         size="xs"
                         variant="ghost"
                         icon="chevron-down"
@@ -81,6 +96,7 @@
                 </div>
 
                 <flux:button
+                    type="button"
                     size="xs"
                     variant="ghost"
                     icon="trash"
