@@ -263,7 +263,7 @@
             <div class="flex items-center gap-2">
                 <i data-lucide="shield-check" class="text-[15px]"></i>
                 <span>
-                    {{ __('Bu döküman kişisel veriler içermektedir. Havuzlarda saklanmak için üretilmemiştir inceleme sonrası silinmesi önemle rica olunur.') }}
+                    {{ __('Belge Sonu') }}
                 </span>
             </div>
             <div class="flex shrink-0 items-center gap-2 whitespace-nowrap font-semibold">
