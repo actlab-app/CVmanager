@@ -8,8 +8,10 @@ use App\Models\PortfolioProject;
 use App\Models\PortfolioTechnology;
 use App\Models\ReferenceToken;
 use App\Models\SiteSetting;
+use Carbon\CarbonImmutable;
 use Flux\Flux;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
@@ -27,6 +29,10 @@ class Dashboard extends Component
     public string $webThemeColor = 'green';
 
     public string $preferredCvTheme = 'modern';
+
+    public ?string $referenceTokenChartDateFrom = null;
+
+    public ?string $referenceTokenChartDateTo = null;
 
     public function mount(): void
     {
@@ -94,6 +100,11 @@ class Dashboard extends Component
         );
     }
 
+    public function resetReferenceTokenChartDates(): void
+    {
+        $this->reset(['referenceTokenChartDateFrom', 'referenceTokenChartDateTo']);
+    }
+
     public function render(): View
     {
         return view('livewire.admin.dashboard', [
@@ -120,22 +131,59 @@ class Dashboard extends Component
     private function referenceTokenChart(): array
     {
         $tokens = ReferenceToken::query()
-            ->where('visits_count', '>', 0)
-            ->orderByDesc('visits_count')
+            ->withCount([
+                'visits as chart_visits_count' => fn (Builder $query) => $this->applyReferenceVisitDateRange($query),
+            ])
+            ->whereHas('visits', fn (Builder $query) => $this->applyReferenceVisitDateRange($query))
+            ->orderByDesc('chart_visits_count')
             ->orderBy('name')
             ->limit(self::REFERENCE_TOKEN_CHART_LIMIT)
-            ->get(['name', 'token', 'visits_count']);
+            ->get(['id', 'name', 'token']);
 
-        $maxVisits = max(1, (int) $tokens->max('visits_count'));
+        $maxVisits = max(1, (int) $tokens->max('chart_visits_count'));
 
         return $tokens
             ->map(fn (ReferenceToken $referenceToken): array => [
                 'name' => $referenceToken->name,
                 'token' => $referenceToken->token,
-                'visits_count' => (int) $referenceToken->visits_count,
-                'percentage' => round(((int) $referenceToken->visits_count / $maxVisits) * 100, 2),
+                'visits_count' => (int) $referenceToken->chart_visits_count,
+                'percentage' => round(((int) $referenceToken->chart_visits_count / $maxVisits) * 100, 2),
             ])
             ->all();
+    }
+
+    private function applyReferenceVisitDateRange(Builder $query): Builder
+    {
+        [$dateFrom, $dateTo] = $this->referenceTokenChartDateRange();
+
+        return $query
+            ->when($dateFrom, fn (Builder $query) => $query->where('visited_at', '>=', $dateFrom))
+            ->when($dateTo, fn (Builder $query) => $query->where('visited_at', '<=', $dateTo));
+    }
+
+    private function referenceTokenChartDateRange(): array
+    {
+        $dateFrom = $this->parseDate($this->referenceTokenChartDateFrom)?->startOfDay();
+        $dateTo = $this->parseDate($this->referenceTokenChartDateTo)?->endOfDay();
+
+        if ($dateFrom && $dateTo && $dateFrom->greaterThan($dateTo)) {
+            return [$dateTo->startOfDay(), $dateFrom->endOfDay()];
+        }
+
+        return [$dateFrom, $dateTo];
+    }
+
+    private function parseDate(?string $date): ?CarbonImmutable
+    {
+        if (! $date) {
+            return null;
+        }
+
+        try {
+            return CarbonImmutable::createFromFormat('Y-m-d', $date);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     private function normalizeThemeColor(?string $color): string

@@ -236,16 +236,27 @@
     </div>
 
     <flux:card>
-        <div class="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="mb-5 flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
             <div>
                 <flux:heading size="lg">Referans Token Ziyaretleri</flux:heading>
                 <flux:text class="mt-1 text-sm text-zinc-500">
                     En çok ziyaret alan tokenler büyükten küçüğe sıralanır. Liste ekrana sığması için ilk 10 kayıtla sınırlandırılır.
                 </flux:text>
             </div>
-            <flux:button size="sm" variant="ghost" icon="link" :href="route('reference-token-manager.index')" wire:navigate>
-                Tokenleri yönet
-            </flux:button>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end">
+                <div class="grid grid-cols-2 gap-2">
+                    <flux:input type="date" label="Başlangıç" wire:model.live="referenceTokenChartDateFrom" />
+                    <flux:input type="date" label="Bitiş" wire:model.live="referenceTokenChartDateTo" />
+                </div>
+                <div class="flex gap-2">
+                    <flux:button type="button" size="sm" variant="ghost" icon="x-mark" wire:click="resetReferenceTokenChartDates">
+                        Temizle
+                    </flux:button>
+                    <flux:button size="sm" variant="ghost" icon="link" :href="route('reference-token-manager.index')" wire:navigate>
+                        Tokenleri yönet
+                    </flux:button>
+                </div>
+            </div>
         </div>
 
         @if (count($referenceTokenChart) > 0)
