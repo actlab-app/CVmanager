@@ -3,6 +3,7 @@
 use App\Livewire\Admin\CvManager;
 use App\Models\CvRecord;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -60,6 +61,26 @@ it('persists classic CV summary and detailed experience text', function () {
 
     expect($record->getTranslation('classic_profile_summary', 'tr'))->toBe('ATS uyumlu profesyonel ozet.')
         ->and($record->getTranslation('experiences', 'tr')[0]['detailed_description'])->toBe('100+ proje teslimatinda aktif rol.');
+});
+
+it('loads legacy scalar classic CV summary without copying it into every language', function () {
+    DB::table('cv_records')->insert([
+        'full_name' => 'Test User',
+        'classic_profile_summary' => json_encode('Eski tek dilli ozet.'),
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]);
+
+    Livewire::test(CvManager::class)
+        ->assertSet('translations.tr.classic_profile_summary', 'Eski tek dilli ozet.')
+        ->assertSet('translations.en.classic_profile_summary', '')
+        ->set('translations.en.classic_profile_summary', 'English summary.')
+        ->call('save');
+
+    $record = CvRecord::firstOrFail();
+
+    expect($record->getTranslation('classic_profile_summary', 'tr'))->toBe('Eski tek dilli ozet.')
+        ->and($record->getTranslation('classic_profile_summary', 'en'))->toBe('English summary.');
 });
 
 it('keeps icons synchronized between languages', function () {

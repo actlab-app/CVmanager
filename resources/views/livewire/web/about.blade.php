@@ -1,37 +1,9 @@
 @php
     $isTurkish = app()->getLocale() === 'tr';
-    $heroMotions = [
-        ['offset' => 50, 'rotate' => -1.4, 'enter' => 'left'],
-        ['offset' => -60, 'rotate' => 0, 'enter' => 'bottom'],
-        ['offset' => 50, 'rotate' => 1.2, 'enter' => 'right'],
-    ];
 @endphp
 
 <div
     class="about-page space-y-6 pb-4"
-    x-data="{
-        reducedMotion: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-        react(event, strength = 5) {
-            if (this.reducedMotion) return;
-
-            const element = event.currentTarget;
-            const rect = element.getBoundingClientRect();
-            const x = event.clientX - rect.left;
-            const y = event.clientY - rect.top;
-
-            element.style.setProperty('--pointer-x', `${(x / rect.width) * 100}%`);
-            element.style.setProperty('--pointer-y', `${(y / rect.height) * 100}%`);
-            element.style.setProperty('--tilt-x', `${(0.5 - y / rect.height) * strength}deg`);
-            element.style.setProperty('--tilt-y', `${(x / rect.width - 0.5) * strength}deg`);
-        },
-        reset(event) {
-            const element = event.currentTarget;
-            element.style.setProperty('--pointer-x', '50%');
-            element.style.setProperty('--pointer-y', '50%');
-            element.style.setProperty('--tilt-x', '0deg');
-            element.style.setProperty('--tilt-y', '0deg');
-        }
-    }"
 >
     <style>
         @property --about-angle {
@@ -41,10 +13,8 @@
         }
 
         .about-full-bleed {
-            left: 50%;
-            margin-left: -50vw;
             position: relative;
-            width: 100vw;
+            width: 100%;
         }
 
         .about-panel-image {
@@ -54,9 +24,12 @@
             object-fit: cover;
             position: absolute;
             width: 100%;
-            transform: translate3d(0, var(--image-y, 0), 0) scale(var(--image-scale, 1.08));
-            transition: filter .5s ease, transform .2s ease-out;
-            will-change: transform;
+            transform: none;
+            transition: filter .5s ease;
+        }
+
+        .about-hero-grid {
+            grid-template-columns: repeat(var(--panel-count), minmax(0, 1fr));
         }
 
         .about-grid {
@@ -69,7 +42,7 @@
         }
 
         .about-grid-drift {
-            animation: about-grid-drift 16s linear infinite;
+            animation: none;
         }
 
         .about-headline {
@@ -127,27 +100,24 @@
             --tilt-y: 0deg;
             isolation: isolate;
             position: relative;
-            transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
-            transform-style: preserve-3d;
-            transition: border-color .3s ease, box-shadow .3s ease, transform .2s ease-out;
-            will-change: transform;
+            transform: none;
+            transition: border-color .3s ease, box-shadow .3s ease;
         }
 
 
 
         .about-reactive-content {
             position: relative;
-            transform: translateZ(18px);
+            transform: none;
             z-index: 1;
         }
 
         .about-loop-icon {
-            animation: about-icon-float 3.8s ease-in-out infinite;
-            animation-delay: var(--icon-delay, 0ms);
+            animation: none;
         }
 
         .about-loop-icon .lucide {
-            animation: about-icon-turn 8s ease-in-out infinite;
+            animation: none;
             transform-origin: center;
         }
 
@@ -203,33 +173,15 @@
         }
 
         .about-panel-shell {
-            animation: about-panel-enter .9s cubic-bezier(.16, 1, .3, 1) both;
-            animation-delay: var(--panel-delay, 0ms);
+            animation: none;
             height: 100%;
             min-width: 0;
         }
 
-        .about-panel-shell--left {
-            animation-name: about-panel-enter-left;
-            animation-duration: 1s;
-        }
-
-        .about-panel-shell--right {
-            animation-name: about-panel-enter-right;
-            animation-duration: 1s;
-        }
-
         .about-panel {
             height: 100%;
-            transform:
-                perspective(1000px)
-                translate3d(0, var(--scroll-y, 0px), 0)
-                scale(var(--panel-scale, 1))
-                rotateX(var(--panel-rx, 0deg))
-                rotateZ(var(--panel-rz, 0deg));
-            transform-style: preserve-3d;
-            transition: border-color .35s ease, box-shadow .35s ease, transform .18s ease-out;
-            will-change: transform;
+            transform: none;
+            transition: border-color .35s ease, box-shadow .35s ease;
         }
 
 
@@ -239,7 +191,7 @@
         }
 
         .about-card-icon::after {
-            animation: about-ring-pulse 2.6s ease-out infinite;
+            animation: none;
             border: 1px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
             border-radius: inherit;
             content: '';
@@ -388,9 +340,29 @@
                 scroll-behavior: auto !important;
             }
 
-            .about-motion,
             .about-reactive {
                 transform: none !important;
+            }
+        }
+
+        @media (max-width: 1279px) {
+            .about-hero-grid {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .about-panel-shell {
+                min-height: 260px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .about-panel-shell {
+                min-height: 220px;
+            }
+
+            .about-focus-grid {
+                grid-template-columns: 1fr !important;
             }
         }
     </style>
@@ -415,8 +387,6 @@
     <header
         class="about-reactive about-orbit-border relative overflow-hidden rounded-2xl border border-line bg-[var(--bg-card)] p-5 sm:p-8"
         style="--border-speed: 11s;"
-        x-on:pointermove="react($event, 2.2)"
-        x-on:pointerleave="reset($event)"
     >
         <div class="about-grid about-grid-drift pointer-events-none absolute inset-0"></div>
         <div class="relative grid gap-6 lg:grid-cols-[minmax(0,1fr)_220px] lg:items-end">
@@ -452,8 +422,6 @@
             <div
                 class="about-reactive about-orbit-border about-reveal rounded-xl border border-line bg-soft p-4"
                 style="--border-speed: 5s; --reveal-delay: 260ms;"
-                x-on:pointermove="react($event, 6)"
-                x-on:pointerleave="reset($event)"
             >
                 <div class="about-reactive-content flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-muted">
                     <span>{{ $about['current_label'] }}</span>
@@ -469,47 +437,22 @@
         </div>
     </header>
 
-    <section
-        x-data="{
-            progress: 0,
-            update() {
-                const rect = this.$refs.hero.getBoundingClientRect();
-                this.progress = Math.max(0, Math.min(1, (window.innerHeight - rect.top) / (window.innerHeight + rect.height)));
-            }
-        }"
-        x-init="
-            update();
-            const handleScroll = () => window.requestAnimationFrame(() => update());
-            window.addEventListener('scroll', handleScroll, { passive: true });
-            $cleanup(() => window.removeEventListener('scroll', handleScroll));
-        "
-        x-ref="hero"
-        class="about-full-bleed about-hero-stage overflow-hidden border-y border-white/10 bg-slate-950 py-4 sm:py-6"
-    >
+    <section class="about-full-bleed about-hero-stage overflow-hidden border-y border-white/10 bg-slate-950 py-4 sm:py-6">
         <div class="about-hero-aurora"></div>
 
 
         <div
-            class="relative z-[1] mx-auto grid h-[390px] w-[calc(100%-2rem)] max-w-[1500px] gap-2 sm:h-[480px] sm:w-[calc(100%-3rem)] sm:gap-3"
-            style="grid-template-columns: repeat({{ max(count($about['hero_panels']), 1) }}, minmax(0, 1fr));"
+            class="about-hero-grid relative z-[1] mx-auto grid h-[390px] w-[calc(100%-2rem)] max-w-[1500px] gap-2 sm:h-[480px] sm:w-[calc(100%-3rem)] sm:gap-3"
+            style="--panel-count: {{ max(count($about['hero_panels']), 1) }};"
         >
             @foreach ($about['hero_panels'] as $panel)
                 @php
-                    $motion = $heroMotions[$loop->index % count($heroMotions)];
                     $panelImagePath = $panel['image_path'] ?? $heroImagePath;
                 @endphp
-                <div class="about-panel-shell about-panel-shell--{{ $motion['enter'] }}" style="--panel-delay: {{ 180 + ($loop->index * 150) }}ms;">
+                <div class="about-panel-shell">
                     <article
-                        class="about-panel about-motion about-orbit-border relative overflow-hidden rounded-xl border border-white/15 bg-slate-900 shadow-2xl"
-                        x-bind:style="`
-                            --panel-rz: {{ $motion['rotate'] }}deg;
-                            --border-speed: {{ 6 + $loop->index }}s;
-                            --scroll-y: ${(progress - .5) * {{ $motion['offset'] }}}px;
-                            --panel-rx: ${(progress - .5) * {{ 3.2 + ($loop->index * .7) }}}deg;
-                            --panel-scale: ${.975 + (Math.sin(progress * Math.PI) * .025)};
-                            --image-y: ${(progress - .5) * {{ $motion['offset'] * -.75 }}}px;
-                            --image-scale: ${1.1 - (Math.sin(progress * Math.PI) * .025)};
-                        `"
+                        class="about-panel about-orbit-border relative overflow-hidden rounded-xl border border-white/15 bg-slate-900 shadow-2xl"
+                        style="--border-speed: {{ 6 + $loop->index }}s;"
                     >
                         @if ($panelImagePath)
                             <img
@@ -541,8 +484,6 @@
         <article
             class="about-reactive about-orbit-border relative overflow-hidden rounded-2xl border border-line bg-[var(--bg-card)] p-5 sm:p-7"
             style="--border-speed: 9s;"
-            x-on:pointermove="react($event, 2.8)"
-            x-on:pointerleave="reset($event)"
         >
             <div class="about-grid about-grid-drift pointer-events-none absolute inset-0"></div>
             <div class="absolute right-[-55px] top-[-55px] h-40 w-40 rounded-full bg-accentSoft blur-3xl"></div>
@@ -560,14 +501,12 @@
                 
                 @php($focusCardColumns = min(max(count($about['focus_cards']), 1), 3))
                 <div
-                    class="mt-6 grid gap-3"
+                    class="about-focus-grid mt-6 grid gap-3"
                     style="grid-template-columns: repeat({{ $focusCardColumns }}, minmax(0, 1fr));"
                 >
                     @foreach ($about['focus_cards'] as $item)
                         <div
                             class="about-reactive rounded-xl border border-line bg-soft px-3 py-2.5"
-                            x-on:pointermove="react($event, 8)"
-                            x-on:pointerleave="reset($event)"
                         >
                             <div class="about-reactive-content flex items-center gap-3">
                                 <span class="about-loop-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--bg-card)] text-accent shadow-sm" style="--icon-delay: {{ $loop->index * 260 }}ms;">
@@ -608,8 +547,6 @@
                 }
             }"
             data-principle-switcher
-            x-on:pointermove="react($event, 3.5)"
-            x-on:pointerleave="reset($event)"
         >
             <div class="about-grid about-grid-drift pointer-events-none absolute inset-0"></div>
             <div class="relative z-[1] flex min-h-[300px] items-center justify-center">
@@ -693,8 +630,6 @@
         <div
             class="about-quote about-reactive about-orbit-border rounded-2xl border border-line p-5 sm:p-6"
             style="--border-speed: 10s;"
-            x-on:pointermove="react($event, 2.5)"
-            x-on:pointerleave="reset($event)"
         >
             <div class="about-reactive-content flex items-start gap-4">
                 <span class="about-card-icon about-loop-icon flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--bg-card)] text-accent">
@@ -711,9 +646,7 @@
 
         <div class="grid grid-cols-2 gap-3 md:w-64">
             <a href="{{ \App\Support\ReferenceUrl::route('portfolio.index') }}" wire:navigate
-                class="about-reactive about-orbit-border group flex min-h-28 flex-col justify-between rounded-2xl border border-line bg-[var(--bg-card)] p-4 hover:border-accent"
-                x-on:pointermove="react($event, 9)"
-                x-on:pointerleave="reset($event)">
+                class="about-reactive about-orbit-border group flex min-h-28 flex-col justify-between rounded-2xl border border-line bg-[var(--bg-card)] p-4 hover:border-accent">
                 <span class="about-reactive-content flex h-full flex-col justify-between">
                     <span class="about-loop-icon inline-flex">
                         <i data-lucide="briefcase-business" class="h-5 w-5 text-accent"></i>
@@ -725,9 +658,7 @@
                 </span>
             </a>
             <a href="{{ \App\Support\ReferenceUrl::route('contact') }}" wire:navigate
-                class="about-reactive about-orbit-border group flex min-h-28 flex-col justify-between rounded-2xl border border-line bg-[var(--bg-card)] p-4 hover:border-accent"
-                x-on:pointermove="react($event, 9)"
-                x-on:pointerleave="reset($event)">
+                class="about-reactive about-orbit-border group flex min-h-28 flex-col justify-between rounded-2xl border border-line bg-[var(--bg-card)] p-4 hover:border-accent">
                 <span class="about-reactive-content flex h-full flex-col justify-between">
                     <span class="about-loop-icon inline-flex" style="--icon-delay: 420ms;">
                         <i data-lucide="message-circle-more" class="h-5 w-5 text-accent"></i>

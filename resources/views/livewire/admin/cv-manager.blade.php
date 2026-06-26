@@ -57,6 +57,7 @@
 
             <flux:input
                 :label="$isTurkish ? 'Meslek Unvanı (TR)' : 'Job Title (EN)'"
+                wire:key="cv-job-title-{{ $activeLang }}"
                 wire:model="translations.{{ $activeLang }}.job_title"
                 :placeholder="$isTurkish ? 'Meslek unvanı...' : 'Job title...'"
                 icon="briefcase"
@@ -64,6 +65,7 @@
 
             <flux:textarea
                 :label="$isTurkish ? 'Hakkında İçerik (TR) - HTML destekli' : 'About Content (EN) - HTML supported'"
+                wire:key="cv-about-content-{{ $activeLang }}"
                 wire:model="translations.{{ $activeLang }}.about_content"
                 :placeholder="$isTurkish ? 'Hakkında içeriği (HTML)...' : 'About content (HTML)...'"
                 rows="4"
@@ -83,6 +85,7 @@
 
         <flux:textarea
             :label="$isTurkish ? 'Profesyonel Özet (TR)' : 'Professional Summary (EN)'"
+            wire:key="cv-classic-profile-summary-{{ $activeLang }}"
             wire:model="translations.{{ $activeLang }}.classic_profile_summary"
             :placeholder="$isTurkish ? 'Klasik CV için 3-5 cümlelik, sonuç ve deneyim odaklı özet...' : 'A 3-5 sentence result-focused summary for the classic CV...'"
             rows="4"

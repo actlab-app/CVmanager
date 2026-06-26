@@ -77,7 +77,7 @@ class CvManager extends Component
 
         foreach (self::LANGUAGES as $lang) {
             foreach (self::TEXT_FIELDS as $field) {
-                $this->translations[$lang][$field] = $record->getTranslation($field, $lang, false) ?? '';
+                $this->translations[$lang][$field] = $this->translationValue($record, $field, $lang);
             }
 
             foreach (self::REPEATER_SCHEMAS as $field => $schema) {
@@ -255,5 +255,45 @@ class CvManager extends Component
             fn (string $rowKey): array => $this->{$field}[$lang][$rowKey],
             $this->repeaterOrder[$field],
         );
+    }
+
+    private function translationValue(CvRecord $record, string $field, string $lang): string
+    {
+        try {
+            $translations = $record->getTranslations($field);
+        } catch (\Throwable) {
+            $translations = [];
+        }
+
+        if (array_key_exists($lang, $translations)) {
+            $value = $translations[$lang];
+
+            return is_scalar($value) ? (string) $value : '';
+        }
+
+        $legacyValue = $this->legacyScalarTranslation($record->getRawOriginal($field));
+
+        return $lang === self::LANGUAGES[0] && $legacyValue !== null
+            ? $legacyValue
+            : '';
+    }
+
+    private function legacyScalarTranslation(mixed $rawValue): ?string
+    {
+        if ($rawValue === null || $rawValue === '') {
+            return null;
+        }
+
+        if (is_string($rawValue)) {
+            $decoded = json_decode($rawValue, true);
+
+            if (json_last_error() === JSON_ERROR_NONE) {
+                return is_string($decoded) ? $decoded : null;
+            }
+
+            return $rawValue;
+        }
+
+        return is_scalar($rawValue) ? (string) $rawValue : null;
     }
 }
