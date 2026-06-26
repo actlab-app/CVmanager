@@ -326,7 +326,7 @@
 
         <footer
             class="classic-print-tight mt-5 border-t border-[var(--classic-line)] pt-3 text-[10.5px] leading-relaxed text-[var(--classic-muted)]">
-            {{ __('Bu döküman kişisel veriler içermektedir. Havuzlarda saklanmak için üretilmemiştir; inceleme sonrası silinmesi önemle rica olunur.') }}
+            {{ __('Belge Sonu') }}
         </footer>
     </main>
 
