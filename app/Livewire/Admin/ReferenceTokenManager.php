@@ -46,6 +46,8 @@ class ReferenceTokenManager extends Component
 
     public ?string $detailDateTo = null;
 
+    public string $detailTab = 'analytics';
+
     public string $name = '';
 
     public string $token = '';
@@ -105,6 +107,7 @@ class ReferenceTokenManager extends Component
         ReferenceToken::query()->findOrFail($referenceTokenId);
 
         $this->detailReferenceTokenId = $referenceTokenId;
+        $this->detailTab = 'analytics';
         $this->showDetailModal = true;
     }
 
@@ -117,6 +120,15 @@ class ReferenceTokenManager extends Component
     public function resetDetailDateRange(): void
     {
         $this->reset(['detailDateFrom', 'detailDateTo']);
+    }
+
+    public function selectDetailTab(string $tab): void
+    {
+        if (! in_array($tab, ['analytics', 'cleanup'], true)) {
+            return;
+        }
+
+        $this->detailTab = $tab;
     }
 
     public function deleteVisitorVisits(string $visitorKey): void
@@ -305,9 +317,11 @@ class ReferenceTokenManager extends Component
     {
         $currentIpHash = $this->hashValue(request()->ip());
         $currentUserAgentHash = $this->hashValue(request()->userAgent());
+        $query = $this->applyDetailVisitDateRange(
+            ReferenceVisit::query()->where('reference_token_id', $referenceTokenId),
+        );
 
-        $items = ReferenceVisit::query()
-            ->where('reference_token_id', $referenceTokenId)
+        $items = $query
             ->select('ip_hash', 'user_agent_hash')
             ->selectRaw('COUNT(*) as visits_count')
             ->selectRaw('MAX(visited_at) as last_visited_at')

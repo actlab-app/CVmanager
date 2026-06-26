@@ -1,21 +1,23 @@
 <?php
 
-test('registration screen can be rendered', function () {
-    $response = $this->get(route('register'));
+use Illuminate\Support\Facades\Route;
 
-    $response->assertStatus(200);
-});
+test('registration routes are disabled', function () {
+    expect(Route::has('register'))->toBeFalse()
+        ->and(Route::has('register.store'))->toBeFalse();
 
-test('new users can register', function () {
-    $response = $this->post(route('register.store'), [
+    $this->get('/register')->assertNotFound();
+    $this->post('/register', [
         'name' => 'John Doe',
         'email' => 'test@example.com',
         'password' => 'password',
         'password_confirmation' => 'password',
-    ]);
+    ])->assertNotFound();
+});
 
-    $response->assertSessionHasNoErrors()
-        ->assertRedirect(route('dashboard', absolute: false));
-
-    $this->assertAuthenticated();
+test('login screen does not show the sign up link', function () {
+    $this->get(route('login'))
+        ->assertOk()
+        ->assertDontSee('Sign up')
+        ->assertDontSee("Don't have an account?");
 });

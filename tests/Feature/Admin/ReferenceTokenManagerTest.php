@@ -64,7 +64,7 @@ it('shows token detail analytics in a single modal', function () {
     Livewire::test(ReferenceTokenManager::class)
         ->call('showDetail', $referenceToken->id)
         ->assertSet('showDetailModal', true)
-        ->assertSee('Ziyaret Analitiği')
+        ->assertSee('Ziyaretçi Analitiği')
         ->assertSee("A IP'si")
         ->assertSee('A User Agent')
         ->assertSee('İletişim')
@@ -101,8 +101,43 @@ it('filters token detail analytics by date range', function () {
         ->call('showDetail', $referenceToken->id)
         ->set('detailDateFrom', now()->subDay()->toDateString())
         ->assertSee('1 sayfa ziyareti')
-        ->assertSee('İletişim')
         ->assertDontSee('2 sayfa ziyareti');
+});
+
+it('keeps the selected detail tab while date filters change and filters cleanup rows too', function () {
+    $this->actingAs(User::factory()->create());
+
+    $referenceToken = ReferenceToken::query()->create([
+        'name' => 'Microsoft',
+        'token' => 'MICROSOFT1',
+    ]);
+
+    ReferenceVisit::query()->create([
+        'reference_token_id' => $referenceToken->id,
+        'path' => 'cv',
+        'landing_url' => route('cv', ['rt' => $referenceToken->token]),
+        'ip_hash' => 'old-ip',
+        'user_agent_hash' => 'old-agent',
+        'visited_at' => now()->subDays(5),
+    ]);
+
+    ReferenceVisit::query()->create([
+        'reference_token_id' => $referenceToken->id,
+        'path' => 'contact',
+        'landing_url' => route('contact', ['rt' => $referenceToken->token]),
+        'ip_hash' => 'recent-ip',
+        'user_agent_hash' => 'recent-agent',
+        'visited_at' => now(),
+    ]);
+
+    Livewire::test(ReferenceTokenManager::class)
+        ->call('showDetail', $referenceToken->id)
+        ->call('selectDetailTab', 'cleanup')
+        ->assertSet('detailTab', 'cleanup')
+        ->set('detailDateFrom', now()->subDay()->toDateString())
+        ->assertSet('detailTab', 'cleanup')
+        ->assertSee('recent-ip')
+        ->assertDontSee('old-ip');
 });
 
 it('marks visitor hashes that match the current admin request', function () {
@@ -125,6 +160,7 @@ it('marks visitor hashes that match the current admin request', function () {
 
     Livewire::test(ReferenceTokenManager::class)
         ->call('showDetail', $referenceToken->id)
+        ->call('selectDetailTab', 'cleanup')
         ->assertSee('Ziyaretçi Temizleme')
         ->assertSee('(Sizin IP)');
 });
@@ -177,10 +213,12 @@ it('cleans all visits for a selected visitor on the selected token', function ()
 
     Livewire::test(ReferenceTokenManager::class)
         ->call('showDetail', $referenceToken->id)
+        ->call('selectDetailTab', 'cleanup')
         ->assertSee('Ziyaretçi Temizleme')
         ->assertSee('visitor-ip')
         ->assertSeeHtml('wire:confirm="Bu ziyaretçinin bu tokene yaptığı tüm ziyaretleri temizlemek istiyor musunuz?"')
-        ->call('deleteVisitorVisits', rtrim(strtr(base64_encode(json_encode(['visitor-ip', 'visitor-agent'])), '+/', '-_'), '='));
+        ->call('deleteVisitorVisits', rtrim(strtr(base64_encode(json_encode(['visitor-ip', 'visitor-agent'])), '+/', '-_'), '='))
+        ->assertSet('detailTab', 'cleanup');
 
     expect(ReferenceVisit::query()->where('reference_token_id', $referenceToken->id)->count())->toBe(1)
         ->and(ReferenceVisit::query()->where('reference_token_id', $referenceToken->id)->where('ip_hash', 'visitor-ip')->count())->toBe(0)

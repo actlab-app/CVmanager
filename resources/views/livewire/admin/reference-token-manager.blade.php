@@ -182,109 +182,13 @@
                     </flux:modal.close>
                 </div>
 
-                <details class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-black text-zinc-700 marker:hidden dark:text-zinc-200">
-                        <span class="inline-flex min-w-0 items-center gap-2">
-                            <flux:icon.chart-column class="size-4 shrink-0" />
-                            <span>Ziyaret Analitiği</span>
-                            <span class="rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-                                {{ $detailStats['total_visits'] }} ziyaret
-                            </span>
-                        </span>
-                        <flux:icon.chevron-down class="size-4 shrink-0 transition-transform group-open:rotate-180" />
-                    </summary>
-
-                    <div class="space-y-5 border-t border-zinc-200 p-4 dark:border-zinc-700">
-                        <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] lg:items-end">
-                            <flux:input type="date" label="Başlangıç" wire:model.live="detailDateFrom" />
-                            <flux:input type="date" label="Bitiş" wire:model.live="detailDateTo" />
-                            <flux:button type="button" variant="ghost" icon="x-mark" wire:click="resetDetailDateRange">
-                                Temizle
-                            </flux:button>
-                        </div>
-
-                        <div class="grid gap-4 xl:grid-cols-2">
-                            @foreach ([
-                                ['title' => 'IP Dağılımı', 'chart' => $detailStats['ip_chart'], 'summary' => $detailStats['ip_chart']['groups_count'].' farklı IP'],
-                                ['title' => 'User Agent Dağılımı', 'chart' => $detailStats['user_agent_chart'], 'summary' => $detailStats['user_agent_chart']['groups_count'].' farklı user agent'],
-                            ] as $pie)
-                                <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
-                                    <div class="mb-4 flex items-center justify-between gap-3">
-                                        <div>
-                                            <div class="text-sm font-black text-zinc-900 dark:text-white">{{ $pie['title'] }}</div>
-                                            <div class="text-xs font-semibold text-zinc-500">{{ $pie['summary'] }}</div>
-                                        </div>
-                                        <flux:icon.chart-column class="size-5 text-zinc-400" />
-                                    </div>
-
-                                    @if (count($pie['chart']['items']) > 0)
-                                        <div class="grid gap-4 md:grid-cols-[10rem_minmax(0,1fr)] md:items-center">
-                                            <div class="mx-auto size-40 rounded-full shadow-inner ring-1 ring-zinc-200 dark:ring-zinc-700" style="background: {{ $pie['chart']['gradient'] }}"></div>
-                                            <div class="space-y-2">
-                                                @foreach ($pie['chart']['items'] as $item)
-                                                    <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-xs">
-                                                        <span class="size-3 rounded-sm" style="background: {{ $item['color'] }}"></span>
-                                                        <span class="min-w-0 truncate font-bold text-zinc-600 dark:text-zinc-300">{{ $item['label'] }}</span>
-                                                        <span class="font-black text-zinc-900 dark:text-white">{{ $item['count'] }} · {{ $item['percentage'] }}%</span>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                    @else
-                                        <div class="rounded-xl border border-dashed border-zinc-200 px-4 py-8 text-center dark:border-zinc-700">
-                                            <flux:icon.chart-column class="mx-auto size-8 text-zinc-300" />
-                                            <flux:text class="mt-2 text-sm text-zinc-500">Bu tarih aralığında veri yok.</flux:text>
-                                        </div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-
-                        <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
-                            <div class="mb-4 flex items-center justify-between gap-3">
-                                <div>
-                                    <div class="text-sm font-black text-zinc-900 dark:text-white">Ziyaret Edilen Sayfalar</div>
-                                    <div class="text-xs font-semibold text-zinc-500">{{ $detailStats['page_chart']['total'] }} sayfa ziyareti</div>
-                                </div>
-                                <flux:icon.chart-column class="size-5 text-zinc-400" />
-                            </div>
-
-                            @if (count($detailStats['page_chart']['items']) > 0)
-                                <div class="space-y-3">
-                                    @foreach ($detailStats['page_chart']['items'] as $item)
-                                        <div class="grid gap-2 lg:grid-cols-[minmax(120px,220px)_1fr_64px] lg:items-center">
-                                            <div class="min-w-0 truncate text-sm font-black text-zinc-700 dark:text-zinc-200">{{ $item['label'] }}</div>
-                                            <div class="h-8 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
-                                                <div class="flex h-full min-w-2 items-center rounded-lg bg-blue-500 px-3 text-xs font-black text-white dark:bg-blue-400 dark:text-zinc-950" style="width: {{ $item['percentage'] }}%">
-                                                    @if ($item['percentage'] >= 18)
-                                                        {{ $item['count'] }}
-                                                    @endif
-                                                </div>
-                                            </div>
-                                            <div class="text-right text-sm font-black text-zinc-900 dark:text-white">{{ $item['count'] }}</div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div class="rounded-xl border border-dashed border-zinc-200 px-4 py-8 text-center dark:border-zinc-700">
-                                    <flux:icon.chart-column class="mx-auto size-8 text-zinc-300" />
-                                    <flux:text class="mt-2 text-sm text-zinc-500">Bu tarih aralığında sayfa ziyareti yok.</flux:text>
-                                </div>
-                            @endif
-                        </div>
+                <div class="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
+                    <div class="mb-3 flex items-center gap-2 text-sm font-black text-zinc-900 dark:text-white">
+                        <flux:icon.link class="size-4 shrink-0 text-zinc-400" />
+                        <span>Önizleme Linkleri</span>
                     </div>
-                </details>
 
-                <details open class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-black text-zinc-700 marker:hidden dark:text-zinc-200">
-                        <span class="inline-flex min-w-0 items-center gap-2">
-                            <flux:icon.link class="size-4 shrink-0" />
-                            <span>Önizleme Linkleri</span>
-                        </span>
-                        <flux:icon.chevron-down class="size-4 shrink-0 transition-transform group-open:rotate-180" />
-                    </summary>
-
-                    <div class="space-y-2 border-t border-zinc-200 p-4 dark:border-zinc-700">
+                    <div class="space-y-2">
                         @foreach (['cv' => 'CV', 'portfolio.index' => 'Portfolyo', 'contact' => 'İletişim'] as $routeName => $label)
                             @php($link = ReferenceUrl::appendToken(route($routeName), $detailToken->token))
                             <div class="grid grid-cols-[6rem_minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-zinc-50 px-3 py-2 dark:bg-zinc-800">
@@ -296,79 +200,177 @@
                             </div>
                         @endforeach
                     </div>
-                </details>
+                </div>
 
-                <details open class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-                    <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-black text-zinc-700 marker:hidden dark:text-zinc-200">
-                        <span class="inline-flex min-w-0 items-center gap-2">
-                            <flux:icon.users class="size-4 shrink-0" />
-                            <span>Ziyaretçi Temizleme</span>
-                            <span class="rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-                                {{ $detailStats['visitor_cleanup']['total'] }} ziyaretçi
-                            </span>
-                        </span>
-                        <flux:icon.chevron-down class="size-4 shrink-0 transition-transform group-open:rotate-180" />
-                    </summary>
+                
+                <div class="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900">
+                    
+                    <div class="grid pt-2 lg:grid-cols-2 lg:items-center gap-2">
+                        <flux:input type="date" label="Başlangıç" wire:model.live="detailDateFrom" />
+                        <flux:input type="date" label="Bitiş" wire:model.live="detailDateTo" />
+                    </div>
+                    <div class="mt-5 pt-5 grid grid-cols-2 gap-2 border-b border-zinc-200 pb-3 dark:border-zinc-700">
+                        <button
+                            type="button"
+                            wire:click="selectDetailTab('analytics')"
+                            @class([
+                                'inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-black transition w-full justify-center',
+                                'bg-zinc-900 text-white dark:bg-white dark:text-zinc-950' => $detailTab === 'analytics',
+                                'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700' => $detailTab !== 'analytics',
+                            ])
+                        >
+                            <flux:icon.chart-column class="size-4" />
+                            Ziyaretçi Analitiği
+                            <span class="rounded-md bg-white/20 px-2 py-0.5 text-xs">{{ $detailStats['total_visits'] }}</span>
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="selectDetailTab('cleanup')"
+                            @class([
+                                'inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-black transition w-full justify-center',
+                                'bg-zinc-900 text-white dark:bg-white dark:text-zinc-950' => $detailTab === 'cleanup',
+                                'bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700' => $detailTab !== 'cleanup',
+                            ])
+                        >
+                            <flux:icon.users class="size-4" />
+                            Ziyaretçi Temizleme
+                            <span class="rounded-md bg-white/20 px-2 py-0.5 text-xs">{{ $detailStats['visitor_cleanup']['total'] }}</span>
+                        </button>
+                    </div>
 
-                    <div class="border-t border-zinc-200 p-4 dark:border-zinc-700">
-                        @if (count($detailStats['visitor_cleanup']['items']) > 0)
-                            <div class="space-y-2">
-                                @foreach ($detailStats['visitor_cleanup']['items'] as $visitor)
-                                    <div class="grid gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/60 lg:grid-cols-[minmax(0,1fr)_8rem_11rem_auto] lg:items-center">
-                                        <div class="grid gap-2 md:grid-cols-2">
-                                            <div class="min-w-0">
-                                                <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">IP Hash</div>
-                                                <div class="mt-1 truncate font-mono text-xs font-bold text-zinc-700 dark:text-zinc-200" title="{{ $visitor['ip_hash'] ?? 'Yok' }}">
-                                                    {{ $visitor['ip_hash_short'] }}
-                                                    @if ($visitor['is_current_ip'])
-                                                        <span class="font-sans font-black text-emerald-600 dark:text-emerald-300">(Sizin IP)</span>
-                                                    @endif
+                    @if ($detailTab === 'analytics')
+                        <div class="mt-5 space-y-5">
+                            <div class="grid gap-4 xl:grid-cols-2">
+                                @foreach ([
+                                    ['title' => 'IP Dağılımı', 'chart' => $detailStats['ip_chart'], 'summary' => $detailStats['ip_chart']['groups_count'].' farklı IP'],
+                                    ['title' => 'User Agent Dağılımı', 'chart' => $detailStats['user_agent_chart'], 'summary' => $detailStats['user_agent_chart']['groups_count'].' farklı user agent'],
+                                ] as $pie)
+                                    <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                                        <div class="mb-4 flex items-center justify-between gap-3">
+                                            <div>
+                                                <div class="text-sm font-black text-zinc-900 dark:text-white">{{ $pie['title'] }}</div>
+                                                <div class="text-xs font-semibold text-zinc-500">{{ $pie['summary'] }}</div>
+                                            </div>
+                                            <flux:icon.chart-column class="size-5 text-zinc-400" />
+                                        </div>
+
+                                        @if (count($pie['chart']['items']) > 0)
+                                            <div class="grid gap-4 md:grid-cols-[10rem_minmax(0,1fr)] md:items-center">
+                                                <div class="mx-auto size-40 rounded-full shadow-inner ring-1 ring-zinc-200 dark:ring-zinc-700" style="background: {{ $pie['chart']['gradient'] }}"></div>
+                                                <div class="space-y-2">
+                                                    @foreach ($pie['chart']['items'] as $item)
+                                                        <div class="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 text-xs">
+                                                            <span class="size-3 rounded-sm" style="background: {{ $item['color'] }}"></span>
+                                                            <span class="min-w-0 truncate font-bold text-zinc-600 dark:text-zinc-300">{{ $item['label'] }}</span>
+                                                            <span class="font-black text-zinc-900 dark:text-white">{{ $item['count'] }} · {{ $item['percentage'] }}%</span>
+                                                        </div>
+                                                    @endforeach
                                                 </div>
                                             </div>
-                                            <div class="min-w-0">
-                                                <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">User Agent Hash</div>
-                                                <div class="mt-1 truncate font-mono text-xs font-bold text-zinc-700 dark:text-zinc-200" title="{{ $visitor['user_agent_hash'] ?? 'Yok' }}">
-                                                    {{ $visitor['user_agent_hash_short'] }}
-                                                    @if ($visitor['is_current_user_agent'])
-                                                        <span class="font-sans font-black text-blue-600 dark:text-blue-300">(benzer agent)</span>
-                                                    @endif
-                                                </div>
+                                        @else
+                                            <div class="rounded-xl border border-dashed border-zinc-200 px-4 py-8 text-center dark:border-zinc-700">
+                                                <flux:icon.chart-column class="mx-auto size-8 text-zinc-300" />
+                                                <flux:text class="mt-2 text-sm text-zinc-500">Bu tarih aralığında veri yok.</flux:text>
                                             </div>
-                                        </div>
-
-                                        <div>
-                                            <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">Toplam</div>
-                                            <div class="mt-1 text-sm font-black text-zinc-900 dark:text-white">{{ $visitor['visits_count'] }} ziyaret</div>
-                                        </div>
-
-                                        <div>
-                                            <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">Son Ziyaret</div>
-                                            <div class="mt-1 text-sm font-bold text-zinc-700 dark:text-zinc-200">{{ $visitor['last_visited_at'] }}</div>
-                                        </div>
-
-                                        <div class="flex justify-end">
-                                            <flux:button
-                                                type="button"
-                                                size="sm"
-                                                variant="danger"
-                                                icon="trash"
-                                                wire:click="deleteVisitorVisits('{{ $visitor['visitor_key'] }}')"
-                                                wire:confirm="Bu ziyaretçinin bu tokene yaptığı tüm ziyaretleri temizlemek istiyor musunuz?"
-                                            >
-                                                Sil
-                                            </flux:button>
-                                        </div>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
-                        @else
-                            <div class="rounded-xl border border-dashed border-zinc-200 px-4 py-8 text-center dark:border-zinc-700">
-                                <flux:icon.users class="mx-auto size-8 text-zinc-300" />
-                                <flux:text class="mt-2 text-sm text-zinc-500">Temizlenecek ziyaretçi kaydı yok.</flux:text>
+
+                            <div class="rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
+                                <div class="mb-4 flex items-center justify-between gap-3">
+                                    <div>
+                                        <div class="text-sm font-black text-zinc-900 dark:text-white">Ziyaret Edilen Sayfalar</div>
+                                        <div class="text-xs font-semibold text-zinc-500">{{ $detailStats['page_chart']['total'] }} sayfa ziyareti</div>
+                                    </div>
+                                    <flux:icon.chart-column class="size-5 text-zinc-400" />
+                                </div>
+
+                                @if (count($detailStats['page_chart']['items']) > 0)
+                                    <div class="space-y-3">
+                                        @foreach ($detailStats['page_chart']['items'] as $item)
+                                            <div class="grid gap-2 lg:grid-cols-[minmax(120px,220px)_1fr_64px] lg:items-center">
+                                                <div class="min-w-0 truncate text-sm font-black text-zinc-700 dark:text-zinc-200">{{ $item['label'] }}</div>
+                                                <div class="h-8 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                                                    <div class="flex h-full min-w-2 items-center rounded-lg bg-blue-500 px-3 text-xs font-black text-white dark:bg-blue-400 dark:text-zinc-950" style="width: {{ $item['percentage'] }}%">
+                                                        @if ($item['percentage'] >= 18)
+                                                            {{ $item['count'] }}
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="text-right text-sm font-black text-zinc-900 dark:text-white">{{ $item['count'] }}</div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="rounded-xl border border-dashed border-zinc-200 px-4 py-8 text-center dark:border-zinc-700">
+                                        <flux:icon.chart-column class="mx-auto size-8 text-zinc-300" />
+                                        <flux:text class="mt-2 text-sm text-zinc-500">Bu tarih aralığında sayfa ziyareti yok.</flux:text>
+                                    </div>
+                                @endif
                             </div>
-                        @endif
-                    </div>
-                </details>
+                        </div>
+                    @else
+                        <div class="mt-5">
+                            @if (count($detailStats['visitor_cleanup']['items']) > 0)
+                                <div class="space-y-2">
+                                    @foreach ($detailStats['visitor_cleanup']['items'] as $visitor)
+                                        <div class="grid gap-3 rounded-xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/60 lg:grid-cols-[minmax(0,1fr)_8rem_11rem_auto] lg:items-center">
+                                            <div class="grid gap-2 md:grid-cols-2">
+                                                <div class="min-w-0">
+                                                    <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">IP Hash</div>
+                                                    <div class="mt-1 truncate font-mono text-xs font-bold text-zinc-700 dark:text-zinc-200" title="{{ $visitor['ip_hash'] ?? 'Yok' }}">
+                                                        {{ $visitor['ip_hash_short'] }}
+                                                        @if ($visitor['is_current_ip'])
+                                                            <span class="font-sans font-black text-emerald-600 dark:text-emerald-300">(Sizin IP)</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                                <div class="min-w-0">
+                                                    <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">User Agent Hash</div>
+                                                    <div class="mt-1 truncate font-mono text-xs font-bold text-zinc-700 dark:text-zinc-200" title="{{ $visitor['user_agent_hash'] ?? 'Yok' }}">
+                                                        {{ $visitor['user_agent_hash_short'] }}
+                                                        @if ($visitor['is_current_user_agent'])
+                                                            <span class="font-sans font-black text-blue-600 dark:text-blue-300">(benzer agent)</span>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">Toplam</div>
+                                                <div class="mt-1 text-sm font-black text-zinc-900 dark:text-white">{{ $visitor['visits_count'] }} ziyaret</div>
+                                            </div>
+
+                                            <div>
+                                                <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">Son Ziyaret</div>
+                                                <div class="mt-1 text-sm font-bold text-zinc-700 dark:text-zinc-200">{{ $visitor['last_visited_at'] }}</div>
+                                            </div>
+
+                                            <div class="flex justify-end">
+                                                <flux:button
+                                                    type="button"
+                                                    size="sm"
+                                                    variant="danger"
+                                                    icon="trash"
+                                                    wire:click="deleteVisitorVisits('{{ $visitor['visitor_key'] }}')"
+                                                    wire:confirm="Bu ziyaretçinin bu tokene yaptığı tüm ziyaretleri temizlemek istiyor musunuz?"
+                                                >
+                                                    Sil
+                                                </flux:button>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="rounded-xl border border-dashed border-zinc-200 px-4 py-8 text-center dark:border-zinc-700">
+                                    <flux:icon.users class="mx-auto size-8 text-zinc-300" />
+                                    <flux:text class="mt-2 text-sm text-zinc-500">Temizlenecek ziyaretçi kaydı yok.</flux:text>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                </div>
             </div>
         @endif
     </flux:modal>

@@ -49,7 +49,6 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::verifyEmailView(fn () => view('livewire.admin.auth.verify-email'));
         Fortify::twoFactorChallengeView(fn () => view('livewire.admin.auth.two-factor-challenge'));
         Fortify::confirmPasswordView(fn () => view('livewire.admin.auth.confirm-password'));
-        Fortify::registerView(fn () => view('livewire.admin.auth.register'));
         Fortify::resetPasswordView(fn () => view('livewire.admin.auth.reset-password'));
         Fortify::requestPasswordResetLinkView(fn () => view('livewire.admin.auth.forgot-password'));
     }
