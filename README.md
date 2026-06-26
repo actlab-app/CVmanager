@@ -36,7 +36,6 @@ CVmanager; CV, portfolyo ve kişisel profil içeriklerini yönetmek için geliş
 - Composer
 - Node.js ve npm
 - SQLite, MySQL veya Laravel tarafından desteklenen bir veritabanı
-- Flux Pro erişimi
 
 ## Kurulum
 
@@ -81,10 +80,6 @@ MAIL_MAILER=log
 ```
 
 Canlı ortamda özellikle `APP_ENV`, `APP_DEBUG`, `APP_URL`, veritabanı bağlantısı, e-posta ayarları ve `APP_KEY` değerlerinin güvenli şekilde yapılandırılması gerekir.
-
-## Flux Pro
-
-Bu proje `livewire/flux-pro` paketini kullanır. Bağımlılıkların eksiksiz kurulabilmesi için geçerli bir Flux Pro lisansı ve Composer erişimi gerekir.
 
 ## Katkı
 
