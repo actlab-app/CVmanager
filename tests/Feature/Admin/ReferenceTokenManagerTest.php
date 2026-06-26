@@ -105,6 +105,30 @@ it('filters token detail analytics by date range', function () {
         ->assertDontSee('2 sayfa ziyareti');
 });
 
+it('marks visitor hashes that match the current admin request', function () {
+    $this->actingAs(User::factory()->create());
+    $this->withServerVariables(['HTTP_USER_AGENT' => 'Admin Browser']);
+
+    $referenceToken = ReferenceToken::query()->create([
+        'name' => 'Microsoft',
+        'token' => 'MICROSOFT1',
+    ]);
+
+    ReferenceVisit::query()->create([
+        'reference_token_id' => $referenceToken->id,
+        'path' => 'cv',
+        'landing_url' => route('cv', ['rt' => $referenceToken->token]),
+        'ip_hash' => hash_hmac('sha256', '127.0.0.1', (string) config('app.key')),
+        'user_agent_hash' => hash_hmac('sha256', 'Admin Browser', (string) config('app.key')),
+        'visited_at' => now(),
+    ]);
+
+    Livewire::test(ReferenceTokenManager::class)
+        ->call('showDetail', $referenceToken->id)
+        ->assertSee('Ziyaretçi Temizleme')
+        ->assertSee('(Sizin IP)');
+});
+
 it('cleans all visits for a selected visitor on the selected token', function () {
     $this->actingAs(User::factory()->create());
 
@@ -155,11 +179,8 @@ it('cleans all visits for a selected visitor on the selected token', function ()
         ->call('showDetail', $referenceToken->id)
         ->assertSee('Ziyaretçi Temizleme')
         ->assertSee('visitor-ip')
-        ->call('confirmVisitorVisitDeletion', 'visitor-ip', 'visitor-agent')
-        ->assertSet('showVisitorDeletionModal', true)
-        ->assertSee('Bu ziyaretçinin bu tokene yaptığı tüm ziyaretleri temizlemek istiyor musunuz?')
-        ->call('deleteConfirmedVisitorVisits')
-        ->assertSet('showVisitorDeletionModal', false);
+        ->assertSeeHtml('wire:confirm="Bu ziyaretçinin bu tokene yaptığı tüm ziyaretleri temizlemek istiyor musunuz?"')
+        ->call('deleteVisitorVisits', rtrim(strtr(base64_encode(json_encode(['visitor-ip', 'visitor-agent'])), '+/', '-_'), '='));
 
     expect(ReferenceVisit::query()->where('reference_token_id', $referenceToken->id)->count())->toBe(1)
         ->and(ReferenceVisit::query()->where('reference_token_id', $referenceToken->id)->where('ip_hash', 'visitor-ip')->count())->toBe(0)

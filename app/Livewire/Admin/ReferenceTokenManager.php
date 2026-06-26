@@ -46,12 +46,6 @@ class ReferenceTokenManager extends Component
 
     public ?string $detailDateTo = null;
 
-    public bool $showVisitorDeletionModal = false;
-
-    public ?string $pendingVisitorIpHash = null;
-
-    public ?string $pendingVisitorUserAgentHash = null;
-
     public string $name = '';
 
     public string $token = '';
@@ -118,7 +112,6 @@ class ReferenceTokenManager extends Component
     {
         $this->showDetailModal = false;
         $this->detailReferenceTokenId = null;
-        $this->closeVisitorDeletionModal();
     }
 
     public function resetDetailDateRange(): void
@@ -126,38 +119,21 @@ class ReferenceTokenManager extends Component
         $this->reset(['detailDateFrom', 'detailDateTo']);
     }
 
-    public function confirmVisitorVisitDeletion(?string $ipHash, ?string $userAgentHash): void
+    public function deleteVisitorVisits(string $visitorKey): void
     {
         if (! $this->detailReferenceTokenId) {
             return;
         }
 
-        $this->pendingVisitorIpHash = $ipHash;
-        $this->pendingVisitorUserAgentHash = $userAgentHash;
-        $this->showVisitorDeletionModal = true;
-    }
-
-    public function closeVisitorDeletionModal(): void
-    {
-        $this->showVisitorDeletionModal = false;
-        $this->pendingVisitorIpHash = null;
-        $this->pendingVisitorUserAgentHash = null;
-    }
-
-    public function deleteConfirmedVisitorVisits(): void
-    {
-        if (! $this->detailReferenceTokenId || ! $this->showVisitorDeletionModal) {
-            return;
-        }
+        [$ipHash, $userAgentHash] = $this->decodeVisitorKey($visitorKey);
 
         $deletedCount = $this->visitorQuery(
             ReferenceVisit::query()->where('reference_token_id', $this->detailReferenceTokenId),
-            $this->pendingVisitorIpHash,
-            $this->pendingVisitorUserAgentHash,
+            $ipHash,
+            $userAgentHash,
         )->delete();
 
         $this->refreshReferenceTokenVisitCounters($this->detailReferenceTokenId);
-        $this->closeVisitorDeletionModal();
 
         Flux::toast(
             $deletedCount > 0 ? 'Ziyaretçinin kayıtları temizlendi.' : 'Temizlenecek ziyaret kaydı bulunamadı.',
@@ -327,6 +303,9 @@ class ReferenceTokenManager extends Component
 
     private function visitorCleanupRows(int $referenceTokenId): array
     {
+        $currentIpHash = $this->hashValue(request()->ip());
+        $currentUserAgentHash = $this->hashValue(request()->userAgent());
+
         $items = ReferenceVisit::query()
             ->where('reference_token_id', $referenceTokenId)
             ->select('ip_hash', 'user_agent_hash')
@@ -338,8 +317,11 @@ class ReferenceTokenManager extends Component
             ->map(fn (object $row): array => [
                 'ip_hash' => $row->ip_hash,
                 'user_agent_hash' => $row->user_agent_hash,
+                'visitor_key' => $this->visitorKey($row->ip_hash, $row->user_agent_hash),
                 'ip_hash_short' => $this->shortHash($row->ip_hash),
                 'user_agent_hash_short' => $this->shortHash($row->user_agent_hash),
+                'is_current_ip' => $row->ip_hash && hash_equals($row->ip_hash, (string) $currentIpHash),
+                'is_current_user_agent' => $row->user_agent_hash && hash_equals($row->user_agent_hash, (string) $currentUserAgentHash),
                 'visits_count' => (int) $row->visits_count,
                 'last_visited_at' => $row->last_visited_at
                     ? CarbonImmutable::parse($row->last_visited_at)->format('d.m.Y H:i')
@@ -500,6 +482,35 @@ class ReferenceTokenManager extends Component
             : $query->where($column, $hash);
     }
 
+    private function visitorKey(?string $ipHash, ?string $userAgentHash): string
+    {
+        $payload = json_encode([$ipHash, $userAgentHash], JSON_THROW_ON_ERROR);
+
+        return rtrim(strtr(base64_encode($payload), '+/', '-_'), '=');
+    }
+
+    private function decodeVisitorKey(string $visitorKey): array
+    {
+        $encoded = strtr($visitorKey, '-_', '+/');
+        $encoded .= str_repeat('=', (4 - strlen($encoded) % 4) % 4);
+        $payload = base64_decode($encoded, true);
+
+        if ($payload === false) {
+            return [null, null];
+        }
+
+        $decoded = json_decode($payload, true);
+
+        if (! is_array($decoded) || count($decoded) !== 2) {
+            return [null, null];
+        }
+
+        return [
+            is_string($decoded[0] ?? null) ? $decoded[0] : null,
+            is_string($decoded[1] ?? null) ? $decoded[1] : null,
+        ];
+    }
+
     private function refreshReferenceTokenVisitCounters(int $referenceTokenId): void
     {
         $referenceToken = ReferenceToken::query()->find($referenceTokenId);
@@ -573,6 +584,15 @@ class ReferenceTokenManager extends Component
         }
 
         return substr($hash, 0, 10).'...'.substr($hash, -6);
+    }
+
+    private function hashValue(?string $value): ?string
+    {
+        if (! $value) {
+            return null;
+        }
+
+        return hash_hmac('sha256', $value, (string) config('app.key'));
     }
 
     private function pageLabel(string $path): string

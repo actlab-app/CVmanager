@@ -182,7 +182,7 @@
                     </flux:modal.close>
                 </div>
 
-                <details open class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                <details class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-black text-zinc-700 marker:hidden dark:text-zinc-200">
                         <span class="inline-flex min-w-0 items-center gap-2">
                             <flux:icon.chart-column class="size-4 shrink-0" />
@@ -275,7 +275,7 @@
                     </div>
                 </details>
 
-                <details class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                <details open class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-black text-zinc-700 marker:hidden dark:text-zinc-200">
                         <span class="inline-flex min-w-0 items-center gap-2">
                             <flux:icon.link class="size-4 shrink-0" />
@@ -298,7 +298,7 @@
                     </div>
                 </details>
 
-                <details class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+                <details open class="group rounded-xl border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
                     <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-black text-zinc-700 marker:hidden dark:text-zinc-200">
                         <span class="inline-flex min-w-0 items-center gap-2">
                             <flux:icon.users class="size-4 shrink-0" />
@@ -320,12 +320,18 @@
                                                 <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">IP Hash</div>
                                                 <div class="mt-1 truncate font-mono text-xs font-bold text-zinc-700 dark:text-zinc-200" title="{{ $visitor['ip_hash'] ?? 'Yok' }}">
                                                     {{ $visitor['ip_hash_short'] }}
+                                                    @if ($visitor['is_current_ip'])
+                                                        <span class="font-sans font-black text-emerald-600 dark:text-emerald-300">(Sizin IP)</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                             <div class="min-w-0">
                                                 <div class="text-[11px] font-black uppercase tracking-wide text-zinc-400">User Agent Hash</div>
                                                 <div class="mt-1 truncate font-mono text-xs font-bold text-zinc-700 dark:text-zinc-200" title="{{ $visitor['user_agent_hash'] ?? 'Yok' }}">
                                                     {{ $visitor['user_agent_hash_short'] }}
+                                                    @if ($visitor['is_current_user_agent'])
+                                                        <span class="font-sans font-black text-blue-600 dark:text-blue-300">(benzer agent)</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -346,7 +352,8 @@
                                                 size="sm"
                                                 variant="danger"
                                                 icon="trash"
-                                                wire:click="confirmVisitorVisitDeletion(@js($visitor['ip_hash']), @js($visitor['user_agent_hash']))"
+                                                wire:click="deleteVisitorVisits('{{ $visitor['visitor_key'] }}')"
+                                                wire:confirm="Bu ziyaretçinin bu tokene yaptığı tüm ziyaretleri temizlemek istiyor musunuz?"
                                             >
                                                 Sil
                                             </flux:button>
@@ -364,38 +371,5 @@
                 </details>
             </div>
         @endif
-    </flux:modal>
-
-    <flux:modal
-        name="reference-token-visitor-deletion-modal"
-        wire:model="showVisitorDeletionModal"
-        @close="closeVisitorDeletionModal"
-        class="max-w-lg"
-    >
-        <div class="space-y-5">
-            <div>
-                <flux:heading size="lg">Ziyaretçiyi temizle</flux:heading>
-                <flux:text class="mt-2 text-sm text-zinc-500">
-                    Bu ziyaretçinin bu tokene yaptığı tüm ziyaretleri temizlemek istiyor musunuz?
-                </flux:text>
-            </div>
-
-            <div class="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs dark:border-zinc-700 dark:bg-zinc-800">
-                <div class="font-mono text-zinc-600 dark:text-zinc-300">IP: {{ $pendingVisitorIpHash ?? 'Yok' }}</div>
-                <div class="mt-1 font-mono text-zinc-600 dark:text-zinc-300">UA: {{ $pendingVisitorUserAgentHash ?? 'Yok' }}</div>
-            </div>
-
-            <div class="flex justify-end gap-2">
-                <flux:modal.close>
-                    <flux:button type="button" variant="ghost">
-                        Vazgeç
-                    </flux:button>
-                </flux:modal.close>
-
-                <flux:button type="button" variant="danger" icon="trash" wire:click="deleteConfirmedVisitorVisits">
-                    Evet, temizle
-                </flux:button>
-            </div>
-        </div>
     </flux:modal>
 </div>
