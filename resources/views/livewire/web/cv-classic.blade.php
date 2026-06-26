@@ -178,7 +178,7 @@
     <main class="a4-page classic-cv w-full rounded-2xl bg-[var(--bg-card)] p-4 shadow-xl sm:p-6 md:p-8 print:my-0">
         <header
             class="classic-header rounded-2xl border border-[var(--classic-line)] bg-[var(--classic-blue-soft)] p-5">
-            <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div class="flex flex-col gap-3 md:flex-col justify-start">
                 <div>
                     <h1
                         class="text-[30px] font-black leading-tight tracking-tight text-[var(--classic-ink)] sm:text-[36px]">
@@ -190,7 +190,7 @@
                 </div>
 
                 <div
-                    class="flex flex-wrap gap-1.5 text-[11px] font-bold text-[var(--classic-muted)] justify-between w-full">
+                    class="flex flex-wrap gap-1.5 text-[11px] font-bold text-[var(--classic-muted)] justify-between">
                     @foreach ($contacts as $contactItem)
                         @php
                             $contactUrl = data_get($contactItem, 'url');

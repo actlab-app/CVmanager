@@ -1,6 +1,7 @@
 <div>
     <style>
         @media screen {
+        
             .cv-project-types-grid {
                 grid-template-columns: repeat(1, minmax(0, 1fr));
             }
@@ -108,7 +109,7 @@
     </div>
 
     <main class="a4-page w-full rounded-2xl bg-[var(--bg-card)] p-4 shadow-xl sm:p-6 md:p-8 print:my-0">
-        <header
+        <header style="margin-top: -15px"
             @class([
                 'grid grid-cols-1 gap-5 rounded-2xl border border-line bg-soft p-2 sm:p-2',
                 'lg:grid-cols-[250px_1fr]' => $cvData['qr_url'],
