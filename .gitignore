@@ -5,7 +5,6 @@
 /storage/*.key
 /storage/pail
 /vendor
-/packages/livewire/flux-pro/
 .env
 .env.backup
 .env.production
