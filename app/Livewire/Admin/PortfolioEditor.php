@@ -415,7 +415,7 @@ class PortfolioEditor extends Component
             ],
             'status' => ['required', Rule::in(['draft', 'active', 'completed', 'archived'])],
             'project_date' => ['nullable', 'date'],
-            'live_url' => ['nullable', 'string', 'max:2048'],
+            'live_url' => ['nullable', 'url:http,https', 'max:2048'],
             'repository_url' => ['nullable', 'url', 'max:2048'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_featured' => ['boolean'],

@@ -25,11 +25,11 @@ Route::post('/deploy', function (Request $request) {
         ], 409);
     }
 
-    $command = 'touch ' . escapeshellarg($lock)
-        . ' && nohup /bin/bash ' . escapeshellarg($script)
-        . ' >> ' . escapeshellarg($log)
-        . ' 2>&1; rm -f ' . escapeshellarg($lock)
-        . ' > /dev/null 2>&1 & echo $!';
+    $command = 'touch '.escapeshellarg($lock)
+        .' && nohup /bin/bash '.escapeshellarg($script)
+        .' >> '.escapeshellarg($log)
+        .' 2>&1; rm -f '.escapeshellarg($lock)
+        .' > /dev/null 2>&1 & echo $!';
 
     exec($command, $output, $exitCode);
 

@@ -9,7 +9,7 @@ class CvRecordSeeder extends Seeder
 {
     public function run(): void
     {
-        $demoRecord = new CvRecord();
+        $demoRecord = new CvRecord;
         $demoRecord->full_name = 'Jane Doe';
 
         $tr = [

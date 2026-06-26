@@ -17,8 +17,8 @@
 <div>
     <style>
         .classic-cv {
-            --classic-blue: #1d4ed8;
-            --classic-blue-soft: #eff6ff;
+            --classic-blue: var(--color-accentDark);
+            --classic-blue-soft: var(--color-accentSoft);
             --classic-ink: #172033;
             --classic-muted: #526074;
             --classic-line: #d9e2ef;
@@ -26,8 +26,6 @@
         }
 
         html.dark .classic-cv {
-            --classic-blue: #60a5fa;
-            --classic-blue-soft: #10243f;
             --classic-ink: #e5eefb;
             --classic-muted: #a7b4c7;
             --classic-line: #26364d;
@@ -69,8 +67,8 @@
             }
 
             .classic-cv {
-                --classic-blue: #1d4ed8;
-                --classic-blue-soft: #eff6ff;
+                --classic-blue: var(--color-accentDark);
+                --classic-blue-soft: var(--color-accentSoft);
                 --classic-ink: #172033;
                 --classic-muted: #526074;
                 --classic-line: #d9e2ef;
@@ -192,7 +190,7 @@
                 </div>
 
                 <div
-                    class="flex flex-wrap gap-1.5 text-[11px] font-bold text-[var(--classic-muted)] md:max-w-[52%] md:justify-end">
+                    class="flex flex-wrap gap-1.5 text-[11px] font-bold text-[var(--classic-muted)] justify-between w-full">
                     @foreach ($contacts as $contactItem)
                         @php
                             $contactUrl = data_get($contactItem, 'url');
@@ -339,7 +337,7 @@
                 class="classic-header mb-5 rounded-2xl border border-[var(--classic-line)] bg-[var(--classic-blue-soft)] p-5">
                 <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                     <div
-                        class="flex flex-wrap gap-1.5 text-[11px] font-bold text-[var(--classic-muted)] md:max-w-[52%] md:justify-end">
+                        class="flex flex-wrap gap-1.5 text-[11px] font-bold text-[var(--classic-muted)] justify-between w-full">
                         @foreach ($contacts as $contactItem)
                             @php
                                 $contactUrl = data_get($contactItem, 'url');
@@ -451,7 +449,7 @@
 
     <div class="classic-print-hidden print-btn mt-4 flex justify-end print:hidden">
         <button type="button" onclick="window.print()"
-            class="flex cursor-pointer items-center gap-2.5 rounded-xl border border-blue-900/10 bg-blue-700 px-5 py-2.5 font-bold text-white shadow-md transition-all duration-300 hover:scale-[1.02] hover:bg-blue-800 active:scale-95">
+            class="flex cursor-pointer items-center gap-2.5 rounded-xl border border-accentDark/10 bg-accent px-5 py-2.5 font-bold text-white shadow-md transition-all duration-300 hover:scale-[1.02] hover:bg-accentDark active:scale-95">
             <i data-lucide="printer" class="h-3.5 w-3.5 text-white"></i>
             <span>{{ __('Yazdır') }}</span>
         </button>
