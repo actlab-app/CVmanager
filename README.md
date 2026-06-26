@@ -28,7 +28,7 @@ CVmanager; CV, portfolyo ve kişisel profil içeriklerini yönetmek için geliş
 | Kimlik doğrulama | Laravel Fortify |
 | Veritabanı | SQLite, MySQL veya Laravel destekli diğer veritabanları |
 | Test | Pest, PHPUnit |
-| Ek paketler | Spatie Permission, Translatable, Media Library, Laravel Excel |
+| Ek paketler | Spatie Translatable |
 
 ## Gereksinimler
 
