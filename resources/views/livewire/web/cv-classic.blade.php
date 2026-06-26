@@ -11,6 +11,7 @@
     $projects = collect($classicData['projects'] ?? [])->take(8);
     $technologyCatalog = $classicData['technology_catalog'] ?? [];
     $portfolioUrl = data_get($cvData, 'qr_url');
+    $portfolioDisplayUrl = \App\Support\ReferenceUrl::displayHost($portfolioUrl);
 @endphp
 
 <div>
@@ -231,7 +232,7 @@
                     @if ($portfolioUrl)
                         <a class="classic-chip rounded-full border border-[var(--classic-line)] bg-[var(--bg-card)] px-2.5 py-1 hover:text-[var(--classic-blue)]"
                             href="{{ $portfolioUrl }}" target="_blank" rel="noopener noreferrer">
-                            {{ __('Portfolyo') }}: {{ $portfolioUrl }}
+                            {{ __('Portfolyo') }}: {{ $portfolioDisplayUrl }}
                         </a>
                     @endif
                 </div>
@@ -337,16 +338,6 @@
             <header
                 class="classic-header mb-5 rounded-2xl border border-[var(--classic-line)] bg-[var(--classic-blue-soft)] p-5">
                 <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-                    <div>
-                        <h1
-                            class="text-[30px] font-black leading-tight tracking-tight text-[var(--classic-ink)] sm:text-[36px]">
-                            {{ $cvData['full_name'] }}
-                        </h1>
-                        <p class="mt-1 text-[14px] font-extrabold text-[var(--classic-blue)] sm:text-[16px]">
-                            {{ $cvData['job_title'] }}
-                        </p>
-                    </div>
-
                     <div
                         class="flex flex-wrap gap-1.5 text-[11px] font-bold text-[var(--classic-muted)] md:max-w-[52%] md:justify-end">
                         @foreach ($contacts as $contactItem)
@@ -388,7 +379,7 @@
                         @if ($portfolioUrl)
                             <a class="classic-chip rounded-full border border-[var(--classic-line)] bg-[var(--bg-card)] px-2.5 py-1 hover:text-[var(--classic-blue)]"
                                 href="{{ $portfolioUrl }}" target="_blank" rel="noopener noreferrer">
-                                {{ __('Portfolyo') }}
+                                {{ __('Portfolyo') }}: {{ $portfolioDisplayUrl }}
                             </a>
                         @endif
                     </div>

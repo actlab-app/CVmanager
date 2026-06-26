@@ -80,6 +80,33 @@ class ReferenceUrl
         return $fragment !== null ? $result.'#'.$fragment : $result;
     }
 
+    public static function displayHost(?string $url): string
+    {
+        $url = trim((string) $url);
+
+        if ($url === '') {
+            return '';
+        }
+
+        $parseableUrl = preg_match('/^[a-z][a-z0-9+.-]*:\/\//i', $url)
+            ? $url
+            : 'https://'.$url;
+
+        $host = parse_url($parseableUrl, PHP_URL_HOST);
+
+        if (is_string($host) && $host !== '') {
+            $port = parse_url($parseableUrl, PHP_URL_PORT);
+
+            return $host.($port ? ':'.$port : '');
+        }
+
+        [$withoutFragment] = explode('#', $url, 2);
+        [$withoutQuery] = explode('?', $withoutFragment, 2);
+        [$fallbackHost] = explode('/', $withoutQuery, 2);
+
+        return $fallbackHost;
+    }
+
     public static function normalizeToken(string $token): string
     {
         return str($token)
