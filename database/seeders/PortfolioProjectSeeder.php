@@ -8,6 +8,20 @@ use Illuminate\Database\Seeder;
 
 class PortfolioProjectSeeder extends Seeder
 {
+    private const TECHNOLOGIES = [
+        'php',
+        'laravel',
+        'livewire',
+        'flux-ui',
+        'tailwindcss',
+        'alpinejs',
+        'vite',
+        'spatie-translatable',
+        'laravel-fortify',
+        'mysql',
+        'lucide',
+    ];
+
     public function run(): void
     {
         $project = PortfolioProject::firstOrNew(['slug' => 'cv-manager']);
@@ -15,9 +29,9 @@ class PortfolioProjectSeeder extends Seeder
         $project->fill([
             'status' => 'active',
             'project_date' => '2026-06-13',
-            'live_url' => '/cv',
-            'repository_url' => null,
-            'technologies' => PortfolioTechnology::query()->ordered()->pluck('slug')->all(),
+            'live_url' => $project->live_url ?? '/cv',
+            'repository_url' => $project->repository_url,
+            'technologies' => $this->availableTechnologySlugs(),
             'is_featured' => true,
             'is_published' => true,
             'sort_order' => 1,
@@ -57,80 +71,95 @@ class PortfolioProjectSeeder extends Seeder
                 'en' => 'CV Manager',
             ],
             'short_description' => [
-                'tr' => 'Çok dilli özgeçmiş yönetimi, dinamik bölüm düzenleme ve yazdırılabilir public CV deneyimini tek uygulamada birleştiren kişisel portfolio projesi.',
-                'en' => 'A personal portfolio project combining multilingual resume management, dynamic section editing and a printable public CV experience.',
+                'tr' => 'Livewire tabanlı SPA yönetim paneli, çok dilli CV/portfolio yönetimi, modern-klasik CV çıktıları ve referans token analitiğini tek uygulamada birleştiren kişisel portfolio yönetim sistemi.',
+                'en' => 'A personal portfolio management system combining a Livewire-powered SPA admin panel, multilingual CV/portfolio management, modern-classic CV outputs and reference token analytics.',
             ],
             'detailed_description' => [
-                'tr' => 'CV Manager; özgeçmiş içeriğini Türkçe ve İngilizce olarak yönetmek, bölümleri sıralamak ve A4 uyumlu bir public CV üretmek için geliştirildi.',
-                'en' => 'CV Manager was built to manage resume content in Turkish and English, reorder sections and generate an A4-compatible public CV.',
+                'tr' => 'CV Manager; kişisel CV, hakkımda, iletişim, teknoloji kataloğu, portfolio projeleri ve referans token yönetimini aynı Laravel uygulamasında toplayan full-stack bir yönetim paneli olarak geliştirildi. Admin paneli tam sayfa Livewire bileşenlerinden oluşur ve `wire:navigate` bağlantılarıyla sayfa geçişleri SPA hissinde gerçekleşir. Public tarafta da CV, hakkımda, portfolio ve iletişim sayfaları aynı navigasyon yaklaşımıyla daha akıcı bir deneyim sunar. Sistem Türkçe/İngilizce içerik yönetimi, modern ve ATS odaklı klasik CV teması, yazdırılabilir CV çıktısı, QR/portfolio bağlantısı, Flux UI tabanlı yönetim arayüzü ve Lucide ikon seçicileriyle içerik üretimini hızlandırır. Referans token modülü, kişiye özel public linkler üretir; ziyaretleri hashlenmiş IP ve user agent bilgisiyle kaydeder, tarih aralığına göre token performansı, sayfa dağılımı, IP/user agent kırılımı ve ziyaretçi temizleme akışlarını yönetir. Proje, kişisel portfolio sitesini sadece vitrin olmaktan çıkarıp ölçülebilir, yönetilebilir ve hızlı güncellenebilir bir ürün haline getirmeye odaklanır.',
+                'en' => 'CV Manager was built as a full-stack Laravel admin system that brings CV content, about content, contact data, technology catalog, portfolio projects and reference token management into a single application. The admin panel is composed of full-page Livewire components, and route transitions use `wire:navigate` to provide an SPA-like experience. The public CV, about, portfolio and contact pages use the same navigation approach for a smoother visitor flow. The system supports Turkish/English content management, modern and ATS-oriented classic CV themes, printable CV output, QR/portfolio linking, a Flux UI based admin interface and Lucide icon pickers to speed up content editing. The reference token module creates personalized public links; records visits with hashed IP and user agent data; and provides date-filtered token performance, page distribution, IP/user-agent breakdowns and visitor cleanup flows. The project focuses on turning a personal portfolio site from a static showcase into a measurable, maintainable and quickly editable product.',
             ],
             'project_type' => [
-                'tr' => 'Portfolio Yönetim Aracı',
-                'en' => 'Portfolio Management Tool',
+                'tr' => 'Kişisel Portfolio ve CV Yönetim Sistemi',
+                'en' => 'Personal Portfolio and CV Management System',
             ],
             'role' => [
-                'tr' => 'Full-Stack Developer',
-                'en' => 'Full-Stack Developer',
+                'tr' => 'Full-Stack Laravel / Livewire Geliştiricisi',
+                'en' => 'Full-Stack Laravel / Livewire Developer',
             ],
             'duration' => [
-                'tr' => '2 hafta / iteratif',
-                'en' => '2 weeks / iterative',
+                'tr' => 'İteratif ürün geliştirme',
+                'en' => 'Iterative product development',
             ],
             'platform' => [
-                'tr' => 'Responsive web',
-                'en' => 'Responsive web',
+                'tr' => 'SPA hissinde admin panel + public portfolio sitesi',
+                'en' => 'SPA-like admin panel + public portfolio website',
             ],
             'features' => [
                 'tr' => [
-                    ['icon' => 'languages', 'title' => 'Çoklu Dil', 'description' => 'Türkçe ve İngilizce içerikler aynı kayıt üzerinde yönetilir.'],
-                    ['icon' => 'list-restart', 'title' => 'Dinamik Bölümler', 'description' => 'CV satırları eklenebilir, silinebilir ve iki dilde birlikte sıralanabilir.'],
-                    ['icon' => 'sparkles', 'title' => 'İkon Seçici', 'description' => 'Lucide ikonları arama ve anlık önizleme ile seçilir.'],
-                    ['icon' => 'printer', 'title' => 'A4 Baskı', 'description' => 'Public CV görünümü tek sayfa A4 olarak yazdırılabilir.'],
-                    ['icon' => 'moon-star', 'title' => 'Tema Desteği', 'description' => 'Arayüz açık ve koyu tema arasında geçiş yapar.'],
-                    ['icon' => 'smartphone', 'title' => 'Responsive Tasarım', 'description' => 'Yönetim ve sunum sayfaları farklı ekran boyutlarına uyum sağlar.'],
+                    ['icon' => 'layout-dashboard', 'title' => 'Livewire Admin Paneli', 'description' => 'CV, hakkımda, iletişim, portfolio, teknoloji ve referans token yönetimi tam sayfa Livewire bileşenleriyle yönetilir.'],
+                    ['icon' => 'route', 'title' => 'SPA Hissinde Navigasyon', 'description' => 'Admin paneli ve public web arayüzündeki ana geçişler `wire:navigate` ile daha hızlı ve kesintisiz hale getirildi.'],
+                    ['icon' => 'languages', 'title' => 'Çok Dilli İçerik', 'description' => 'CV, portfolio, hakkımda ve iletişim içerikleri Türkçe ve İngilizce olarak aynı kayıtlar üzerinde yönetilir.'],
+                    ['icon' => 'file-text', 'title' => 'Modern ve Klasik CV', 'description' => 'Görsel modern CV yanında ATS odaklı, yazdırılabilir klasik CV teması panelden seçilebilir.'],
+                    ['icon' => 'chart-column', 'title' => 'Referans Token Analitiği', 'description' => 'Kişiye özel referans linkleri, tarih filtreli ziyaret grafikleri, sayfa dağılımı ve IP/user agent kırılımlarıyla takip edilir.'],
+                    ['icon' => 'shield-check', 'title' => 'Kontrollü Public Erişim', 'description' => 'Tokensiz ziyaretleri engelleme, noindex, iletişim gizliliği ve signup kapatma gibi güvenlik odaklı ayarlar bulunur.'],
                 ],
                 'en' => [
-                    ['icon' => 'languages', 'title' => 'Multilingual', 'description' => 'Turkish and English content is managed on the same record.'],
-                    ['icon' => 'list-restart', 'title' => 'Dynamic Sections', 'description' => 'Resume rows can be added, removed and reordered across both languages.'],
-                    ['icon' => 'sparkles', 'title' => 'Icon Picker', 'description' => 'Lucide icons are selected with search and instant preview.'],
-                    ['icon' => 'printer', 'title' => 'A4 Printing', 'description' => 'The public CV can be printed as a single A4 page.'],
-                    ['icon' => 'moon-star', 'title' => 'Theme Support', 'description' => 'The interface switches between light and dark themes.'],
-                    ['icon' => 'smartphone', 'title' => 'Responsive Design', 'description' => 'Admin and presentation pages adapt to different screen sizes.'],
+                    ['icon' => 'layout-dashboard', 'title' => 'Livewire Admin Panel', 'description' => 'CV, about, contact, portfolio, technology and reference token management are handled through full-page Livewire components.'],
+                    ['icon' => 'route', 'title' => 'SPA-Like Navigation', 'description' => 'Main transitions across the admin panel and public website use `wire:navigate` for a faster and more continuous experience.'],
+                    ['icon' => 'languages', 'title' => 'Multilingual Content', 'description' => 'CV, portfolio, about and contact content are managed in Turkish and English on the same records.'],
+                    ['icon' => 'file-text', 'title' => 'Modern and Classic CV', 'description' => 'A visual modern CV and an ATS-oriented printable classic CV theme can be selected from the panel.'],
+                    ['icon' => 'chart-column', 'title' => 'Reference Token Analytics', 'description' => 'Personalized reference links are tracked with date-filtered visit charts, page distribution and IP/user-agent breakdowns.'],
+                    ['icon' => 'shield-check', 'title' => 'Controlled Public Access', 'description' => 'Security-focused controls include token-only public access, noindex, contact privacy and disabled signup.'],
                 ],
             ],
             'technical_decisions' => [
                 'tr' => [
-                    ['label' => 'Mimari', 'value' => 'Laravel full-page Livewire bileşenleri'],
-                    ['label' => 'Çeviri', 'value' => 'Spatie Translatable ile JSON kolonları'],
-                    ['label' => 'UI Sistemi', 'value' => 'Flux UI ve ortak Blade bileşenleri'],
-                    ['label' => 'İkonlar', 'value' => 'Lucide ikon kataloğu ve dinamik seçici'],
-                    ['label' => 'Dosya Yapısı', 'value' => 'Admin ve web katmanları ayrı Livewire modülleri'],
-                    ['label' => 'Doğrulama', 'value' => 'Pest feature testleri ve production Vite build'],
+                    ['label' => 'Mimari', 'value' => 'Laravel üzerinde admin ve public tarafı ayrı tam sayfa Livewire bileşenleriyle kurgulandı'],
+                    ['label' => 'SPA Deneyimi', 'value' => 'Admin menüleri ve public navigasyon `wire:navigate` ile sayfa yenilemeden ilerleyen bir akışa dönüştürüldü'],
+                    ['label' => 'İçerik Modeli', 'value' => 'Spatie Translatable ile CV ve portfolio içerikleri JSON kolonlarda TR/EN olarak tutuldu'],
+                    ['label' => 'CV Çıktısı', 'value' => 'Modern görsel CV ve ATS odaklı klasik CV aynı veri kaynağından üretilir'],
+                    ['label' => 'Referans Takibi', 'value' => 'Referans token ziyaretleri hashlenmiş IP/user agent, sayfa ve tarih bilgisiyle kaydedilir'],
+                    ['label' => 'Analitik', 'value' => 'Dashboard ve token detay modalında tarih filtreli token, sayfa, IP ve user agent dağılımları gösterilir'],
+                    ['label' => 'UI Sistemi', 'value' => 'Flux UI, Tailwind ve Lucide ikon seçicileriyle tutarlı bir yönetim deneyimi oluşturuldu'],
+                    ['label' => 'Doğrulama', 'value' => 'Kritik yönetim ve public akışlar Pest feature testleriyle korunur'],
                 ],
                 'en' => [
-                    ['label' => 'Architecture', 'value' => 'Laravel full-page Livewire components'],
-                    ['label' => 'Translations', 'value' => 'JSON columns with Spatie Translatable'],
-                    ['label' => 'UI System', 'value' => 'Flux UI and shared Blade components'],
-                    ['label' => 'Icons', 'value' => 'Lucide icon catalog and dynamic picker'],
-                    ['label' => 'Structure', 'value' => 'Separate Livewire modules for admin and web'],
-                    ['label' => 'Verification', 'value' => 'Pest feature tests and production Vite build'],
+                    ['label' => 'Architecture', 'value' => 'Admin and public surfaces are structured as separate full-page Livewire components on Laravel'],
+                    ['label' => 'SPA Experience', 'value' => 'Admin menus and public navigation use `wire:navigate` to move through the app without full page reloads'],
+                    ['label' => 'Content Model', 'value' => 'CV and portfolio content is stored as TR/EN JSON translations with Spatie Translatable'],
+                    ['label' => 'CV Output', 'value' => 'Modern visual CV and ATS-oriented classic CV are generated from the same data source'],
+                    ['label' => 'Reference Tracking', 'value' => 'Reference token visits store hashed IP/user-agent data with page and timestamp metadata'],
+                    ['label' => 'Analytics', 'value' => 'Dashboard and token detail modal show date-filtered token, page, IP and user-agent distributions'],
+                    ['label' => 'UI System', 'value' => 'Flux UI, Tailwind and Lucide icon pickers provide a consistent admin editing experience'],
+                    ['label' => 'Verification', 'value' => 'Critical admin and public flows are covered with Pest feature tests'],
                 ],
             ],
             'metrics' => [
                 'tr' => [
-                    ['value' => '2', 'label' => 'Desteklenen dil', 'icon' => 'languages'],
-                    ['value' => '5', 'label' => 'Dinamik CV bölümü', 'icon' => 'layout-list'],
-                    ['value' => '36', 'label' => 'Geçen otomatik test', 'icon' => 'test-tube-diagonal'],
-                    ['value' => 'A4', 'label' => 'Yazdırma uyumu', 'icon' => 'printer'],
+                    ['icon' => 'route', 'label' => 'Admin + public geçiş', 'value' => 'SPA'],
+                    ['icon' => 'file-text', 'label' => 'CV tema seçeneği', 'value' => '2'],
+                    ['icon' => 'chart-column', 'label' => 'Referans analitiği', 'value' => 'Token'],
+                    ['icon' => 'languages', 'label' => 'İçerik dili', 'value' => 'TR/EN'],
                 ],
                 'en' => [
-                    ['value' => '2', 'label' => 'Supported languages', 'icon' => 'languages'],
-                    ['value' => '5', 'label' => 'Dynamic CV sections', 'icon' => 'layout-list'],
-                    ['value' => '36', 'label' => 'Passing automated tests', 'icon' => 'test-tube-diagonal'],
-                    ['value' => 'A4', 'label' => 'Print compatibility', 'icon' => 'printer'],
+                    ['icon' => 'route', 'label' => 'Admin + public flow', 'value' => 'SPA'],
+                    ['icon' => 'file-text', 'label' => 'CV theme options', 'value' => '2'],
+                    ['icon' => 'chart-column', 'label' => 'Reference analytics', 'value' => 'Token'],
+                    ['icon' => 'languages', 'label' => 'Content languages', 'value' => 'TR/EN'],
                 ],
             ],
         ];
+    }
+
+    private function availableTechnologySlugs(): array
+    {
+        $availableSlugs = PortfolioTechnology::query()
+            ->active()
+            ->whereIn('slug', self::TECHNOLOGIES)
+            ->pluck('slug')
+            ->all();
+
+        return array_values(array_intersect(self::TECHNOLOGIES, $availableSlugs));
     }
 
     private function images(): array

@@ -21,10 +21,12 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            CvRecordSeeder::class,
             AboutSeeder::class,
             ContactSeeder::class,
             PortfolioTechnologySeeder::class,
             PortfolioProjectSeeder::class,
+            PortfolioProjectMetricsSeeder::class,
         ]);
     }
 }

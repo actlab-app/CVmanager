@@ -41,4 +41,24 @@ return [
         'category' => 'Build Tool',
         'logo' => 'vite.svg',
     ],
+    'spatie-translatable' => [
+        'name' => 'Spatie Translatable',
+        'category' => 'Localization',
+        'icon' => 'languages',
+    ],
+    'laravel-fortify' => [
+        'name' => 'Laravel Fortify',
+        'category' => 'Authentication',
+        'icon' => 'lock-keyhole',
+    ],
+    'mysql' => [
+        'name' => 'MySQL',
+        'category' => 'Database',
+        'icon' => 'database',
+    ],
+    'lucide' => [
+        'name' => 'Lucide Icons',
+        'category' => 'Icon System',
+        'icon' => 'sparkles',
+    ],
 ];
