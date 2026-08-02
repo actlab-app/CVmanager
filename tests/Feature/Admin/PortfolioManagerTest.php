@@ -289,3 +289,24 @@ it('enforces maximum 9 images per portfolio project', function () {
         ->assertHasErrors(['uploads']);
 });
 
+it('saves html content in detailed_description from the rich text editor', function () {
+    $htmlContentTr = '<p><strong>Önemli Özellikler:</strong></p><ul><li>İlk madde</li><li>İkinci madde</li></ul>';
+    $htmlContentEn = '<p><strong>Key Features:</strong></p><ul><li>First item</li><li>Second item</li></ul>';
+
+    Livewire::test(PortfolioEditor::class)
+        ->set('slug', 'html-editor-test')
+        ->set('status', 'completed')
+        ->set('translations.tr.title', 'HTML Editör Testi')
+        ->set('translations.en.title', 'HTML Editor Test')
+        ->set('translations.tr.detailed_description', $htmlContentTr)
+        ->set('translations.en.detailed_description', $htmlContentEn)
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $project = PortfolioProject::where('slug', 'html-editor-test')->firstOrFail();
+
+    expect($project->getTranslation('detailed_description', 'tr'))->toBe($htmlContentTr)
+        ->and($project->getTranslation('detailed_description', 'en'))->toBe($htmlContentEn);
+});
+
+

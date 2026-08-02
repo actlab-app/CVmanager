@@ -55,11 +55,13 @@
                         wire:model="translations.{{ $activeLang }}.short_description"
                         rows="3"
                     />
-                    <flux:textarea
-                        :label="$isTurkish ? 'Detaylı Açıklama' : 'Detailed Description'"
-                        wire:model="translations.{{ $activeLang }}.detailed_description"
-                        rows="5"
-                    />
+                    <div wire:key="portfolio-editor-{{ $activeLang }}">
+                        <x-admin.rich-text-editor
+                            :label="$isTurkish ? 'Detaylı Açıklama (HTML Destekli)' : 'Detailed Description (HTML Supported)'"
+                            wire:model="translations.{{ $activeLang }}.detailed_description"
+                            :lang="$activeLang"
+                        />
+                    </div>
 
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         <flux:input

@@ -47,6 +47,8 @@
                     visible: false,
                     x: 0,
                     y: 0,
+                    left: 0,
+                    top: 0,
                     size: 300,
                     zoom: 2,
                     backgroundImage: '',
@@ -103,8 +105,18 @@
                         return;
                     }
 
-                    this.magnifier.x = event.clientX - stageBox.left;
-                    this.magnifier.y = event.clientY - stageBox.top;
+                    const cursorX = event.clientX - stageBox.left;
+                    const cursorY = event.clientY - stageBox.top;
+                    this.magnifier.x = cursorX;
+                    this.magnifier.y = cursorY;
+
+                    let boxLeft = cursorX + 50;
+                    let boxTop = cursorY - this.magnifier.size - 50;
+                    boxLeft = Math.min(stageBox.width - this.magnifier.size - 10, Math.max(10, boxLeft));
+                    boxTop = Math.min(stageBox.height - this.magnifier.size - 10, Math.max(10, boxTop));
+
+                    this.magnifier.left = boxLeft;
+                    this.magnifier.top = boxTop;
                     this.magnifier.backgroundImage = `url(${JSON.stringify(imageUrl)})`;
                     this.magnifier.backgroundSize = `${renderedWidth * this.magnifier.zoom}px ${renderedHeight * this.magnifier.zoom}px`;
                     this.magnifier.backgroundPosition = `${(this.magnifier.size / 2) - (imageX * this.magnifier.zoom)}px ${(this.magnifier.size / 2) - (imageY * this.magnifier.zoom)}px`;
@@ -161,11 +173,12 @@
                         type="button"
                         x-ref="lightboxTrigger"
                         x-on:click="openLightbox()"
-                        class="absolute bottom-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-slate-950/55 text-white shadow-lg backdrop-blur transition hover:scale-105 hover:bg-slate-950/80 focus:outline-none focus:ring-2 focus:ring-white/80"
+                        class="animate-grow-shrink absolute bottom-4 right-4 z-10 flex items-center gap-2 rounded-full border-2 border-white/70 bg-slate-950/85 px-3.5 py-2 text-xs font-black tracking-wider text-white shadow-xl backdrop-blur-md transition hover:border-white hover:bg-slate-950 hover:shadow-2xl focus:outline-none focus:ring-2 focus:ring-white/80 sm:px-4 sm:py-2.5 sm:text-sm"
                         aria-label="{{ __('Tam ekran görüntüle') }}"
                         title="{{ __('Tam ekran görüntüle') }}"
                     >
-                        <i data-lucide="maximize-2" class="h-4.5 w-4.5"></i>
+                        <i data-lucide="maximize-2" class="h-4 w-4 sm:h-4.5 sm:w-4.5"></i>
+                        <span>{{ __('Tam Ekran') }}</span>
                     </button>
                 </div>
 
@@ -189,7 +202,7 @@
                         x-show="lightbox"
                         x-transition.opacity.duration.200ms
                         x-on:click.self="closeLightbox()"
-                        class="fixed inset-0 z-[200] bg-slate-950/95 p-3 text-white backdrop-blur-sm sm:p-6"
+                        class="fixed inset-0 z-[200] flex items-center justify-center bg-slate-950/95 py-[2.5vh] text-white backdrop-blur-sm"
                         role="dialog"
                         aria-modal="true"
                         aria-label="{{ __('Proje görsel galerisi') }}"
@@ -205,10 +218,10 @@
                             <i data-lucide="x" class="h-5 w-5"></i>
                         </button>
 
-                        <div class="mx-auto flex h-full max-w-[1600px] flex-col">
+                        <div class="mx-auto flex h-full w-full max-w-[1800px] flex-col items-center justify-center">
                             <div
                                 x-ref="lightboxStage"
-                                class="relative min-h-0 flex-1 overflow-hidden"
+                                class="relative flex h-full w-full items-center justify-center overflow-hidden"
                             >
                                 @foreach ($project->images as $index => $image)
                                     <img
@@ -216,7 +229,7 @@
                                         x-transition.opacity.duration.250ms
                                         x-on:mousemove="updateMagnifier($event, @js(asset($image->path)))"
                                         x-on:mouseleave="hideMagnifier()"
-                                        class="absolute inset-0 h-full w-full object-contain lg:cursor-crosshair"
+                                        class="h-full w-auto max-w-full object-contain lg:cursor-crosshair"
                                         src="{{ asset($image->path) }}"
                                         alt="{{ $image->title }}"
                                         @if ($index !== 0) style="display: none;" @endif
@@ -226,8 +239,8 @@
                                 <div
                                     x-show="magnifier.visible"
                                     x-bind:style="{
-                                        left: `${magnifier.x - (magnifier.size / 2)}px`,
-                                        top: `${magnifier.y - (magnifier.size / 2)}px`,
+                                        left: `${magnifier.left}px`,
+                                        top: `${magnifier.top}px`,
                                         width: `${magnifier.size}px`,
                                         height: `${magnifier.size}px`,
                                         backgroundImage: magnifier.backgroundImage,
@@ -348,7 +361,9 @@
                 <i data-lucide="align-left" class="h-4 w-4"></i>
                 {{ __('PROJE HAKKINDA') }}
             </div>
-            <p class="text-[13px] leading-relaxed text-muted sm:text-[14px]">{{ $project->detailed_description }}</p>
+            <div class="prose prose-sm max-w-none text-[13px] leading-relaxed text-muted sm:text-[14px] [&_a]:text-accent [&_a]:underline [&_blockquote]:border-l-4 [&_blockquote]:border-accent [&_blockquote]:pl-4 [&_blockquote]:italic [&_h1]:text-lg [&_h1]:font-black [&_h1]:text-ink [&_h2]:text-base [&_h2]:font-bold [&_h2]:text-ink [&_h3]:text-sm [&_h3]:font-bold [&_h3]:text-ink [&_li]:mb-1 [&_ol]:my-2.5 [&_ol]:list-decimal [&_ol]:pl-5 [&_p]:mb-2.5 [&_strong]:font-bold [&_strong]:text-ink [&_ul]:my-2.5 [&_ul]:list-disc [&_ul]:pl-5">
+                {!! $project->detailed_description !!}
+            </div>
         </section>
     @endif
 

@@ -73,3 +73,17 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+@keyframes growShrink {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+.animate-grow-shrink {
+    animation: growShrink 2.2s ease-in-out infinite;
+}
+

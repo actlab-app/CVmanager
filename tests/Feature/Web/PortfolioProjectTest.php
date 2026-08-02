@@ -206,3 +206,15 @@ it('ships all local technology assets', function () {
         expect(public_path('images/technologies/'.$logo))->toBeFile();
     }
 });
+
+it('renders detailed_description html without escaping on the portfolio detail page', function () {
+    $project = createPublishedPortfolioProject();
+    $project->setTranslation('detailed_description', 'tr', '<p><strong>Zengin İçerik</strong> ve <a href="https://actlab.app">bağlantı</a>.</p>');
+    $project->save();
+
+    $this->withSession(['locale' => 'tr'])
+        ->get(route('portfolio.show', $project))
+        ->assertOk()
+        ->assertSee('<p><strong>Zengin İçerik</strong> ve <a href="https://actlab.app">bağlantı</a>.</p>', false);
+});
+
