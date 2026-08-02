@@ -41,10 +41,7 @@
                 'xl:col-span-2 ring-1 ring-accent/20' => $project->is_showcase,
             ])>
                 <a href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}" class="block">
-                    <div @class([
-                        'relative aspect-[16/9] overflow-hidden rounded-t-2xl bg-soft',
-                        'xl:aspect-[21/9]' => $project->is_showcase,
-                    ])>
+                    <div class="relative aspect-[16/9] overflow-hidden rounded-t-2xl bg-soft">
                         @if ($cover)
                             <img
                                 class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"

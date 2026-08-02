@@ -19,7 +19,7 @@ class PortfolioEditor extends Component
 {
     use WithFileUploads;
 
-    private const MAX_IMAGES = 6;
+    private const MAX_IMAGES = 9;
 
     private const LANGUAGES = ['tr', 'en'];
 

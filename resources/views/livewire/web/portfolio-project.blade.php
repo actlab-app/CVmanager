@@ -121,7 +121,7 @@
             x-on:livewire:navigating.window="document.body.style.overflow = ''"
             class="overflow-hidden rounded-2xl border border-line bg-[var(--bg-card)] shadow-lg">
             @if ($project->images->isNotEmpty())
-                <div class="relative aspect-[16/10] overflow-hidden bg-soft">
+                <div class="relative aspect-[16/9] overflow-hidden bg-soft">
                     @foreach ($project->images as $index => $image)
                         <img
                             x-show="active === {{ $index }}"
@@ -294,7 +294,7 @@
                     </div>
                 </template>
             @else
-                <div class="flex aspect-[16/10] flex-col items-center justify-center bg-soft text-muted">
+                <div class="flex aspect-[16/9] flex-col items-center justify-center bg-soft text-muted">
                     <i data-lucide="image-off" class="h-10 w-10"></i>
                     <span class="mt-2 text-sm font-semibold">{{ __('Proje görseli eklenmedi') }}</span>
                 </div>

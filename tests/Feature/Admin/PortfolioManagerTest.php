@@ -274,3 +274,18 @@ it('updates and deletes projects with their uploaded files', function () {
     expect(PortfolioProject::find($project->id))->toBeNull()
         ->and(public_path($image->path))->not->toBeFile();
 });
+
+it('enforces maximum 9 images per portfolio project', function () {
+    $uploads = collect(range(1, 10))
+        ->map(fn ($i) => UploadedFile::fake()->image("image-{$i}.jpg", 800, 450))
+        ->all();
+
+    Livewire::test(PortfolioEditor::class)
+        ->set('slug', 'max-images-test')
+        ->set('translations.tr.title', 'Maksimum Görsel Testi')
+        ->set('translations.en.title', 'Max Images Test')
+        ->set('uploads', $uploads)
+        ->call('save')
+        ->assertHasErrors(['uploads']);
+});
+
