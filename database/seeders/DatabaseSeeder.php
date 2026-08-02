@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
             ContactSeeder::class,
             PortfolioTechnologySeeder::class,
             PortfolioProjectSeeder::class,
+            RedeskPortfolioSeeder::class,
             PortfolioProjectMetricsSeeder::class,
         ]);
     }

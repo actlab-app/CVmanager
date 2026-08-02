@@ -66,6 +66,7 @@ it('creates a multilingual project and uploads images directly to public', funct
         ->set('translations.tr.short_description', 'Türkçe açıklama')
         ->set('translations.en.short_description', 'English description')
         ->set('technologySlugs', ['laravel', 'livewire'])
+        ->set('is_showcase', true)
         ->set('is_published', true)
         ->set('uploads', [$upload]);
     $uploadKey = $component->get('uploadOrder.0');
@@ -81,6 +82,7 @@ it('creates a multilingual project and uploads images directly to public', funct
 
     expect($project->getTranslation('title', 'tr'))->toBe('Test Projesi')
         ->and($project->technologies)->toBe(['laravel', 'livewire'])
+        ->and($project->is_showcase)->toBeTrue()
         ->and($image->getTranslation('title', 'en'))->toBe('Admin Panel')
         ->and(public_path($image->path))->toBeFile()
         ->and($image->path)->toStartWith('images/portfolio/test-project/');

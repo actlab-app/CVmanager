@@ -55,6 +55,8 @@ class PortfolioEditor extends Component
 
     public bool $is_featured = false;
 
+    public bool $is_showcase = false;
+
     public bool $is_published = false;
 
     public int $sort_order = 0;
@@ -125,6 +127,7 @@ class PortfolioEditor extends Component
         $this->live_url = $project->live_url ?? '';
         $this->repository_url = $project->repository_url ?? '';
         $this->is_featured = (bool) $project->is_featured;
+        $this->is_showcase = (bool) $project->is_showcase;
         $this->is_published = (bool) $project->is_published;
         $this->sort_order = (int) ($project->sort_order ?? 0);
         $this->technologySlugs = $project->technologies ?? [];
@@ -336,6 +339,7 @@ class PortfolioEditor extends Component
                 PortfolioTechnology::query()->active()->pluck('slug')->all(),
             )),
             'is_featured' => $this->is_featured,
+            'is_showcase' => $this->is_showcase,
             'is_published' => $this->is_published,
             'sort_order' => $this->sort_order,
         ]);
@@ -419,6 +423,7 @@ class PortfolioEditor extends Component
             'repository_url' => ['nullable', 'url', 'max:2048'],
             'sort_order' => ['required', 'integer', 'min:0'],
             'is_featured' => ['boolean'],
+            'is_showcase' => ['boolean'],
             'is_published' => ['boolean'],
             'translations.tr.title' => ['required', 'string', 'max:180'],
             'translations.en.title' => ['required', 'string', 'max:180'],

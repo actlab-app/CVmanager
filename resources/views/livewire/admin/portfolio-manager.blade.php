@@ -42,6 +42,9 @@
                             @if ($project->is_featured)
                                 <flux:badge color="amber" size="sm">Öne Çıkan</flux:badge>
                             @endif
+                            @if ($project->is_showcase)
+                                <flux:badge color="blue" size="sm">Vitrin Proje</flux:badge>
+                            @endif
                         </div>
                         <flux:text class="mt-1 line-clamp-2 text-sm text-zinc-500">
                             {{ $project->getTranslation('short_description', 'tr', false) }}

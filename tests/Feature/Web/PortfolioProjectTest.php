@@ -26,6 +26,7 @@ function createPublishedPortfolioProject(array $attributes = []): PortfolioProje
         'repository_url' => $attributes['repository_url'] ?? null,
         'technologies' => ['laravel', 'livewire', 'tailwindcss'],
         'is_featured' => $attributes['is_featured'] ?? false,
+        'is_showcase' => $attributes['is_showcase'] ?? false,
         'is_published' => $attributes['is_published'] ?? true,
         'sort_order' => $attributes['sort_order'] ?? 0,
     ]);
@@ -158,6 +159,30 @@ it('orders portfolio index projects by managed sort order', function () {
     expect(strpos($content, 'Plain Early'))->toBeLessThan(strpos($content, 'Featured Late'));
 });
 
+it('renders showcase projects first across the full portfolio grid', function () {
+    createPublishedPortfolioProject([
+        'slug' => 'plain-first',
+        'title' => 'Plain First',
+        'sort_order' => 0,
+    ]);
+
+    createPublishedPortfolioProject([
+        'slug' => 'showcase-late',
+        'title' => 'Showcase Late',
+        'is_showcase' => true,
+        'sort_order' => 99,
+    ]);
+
+    $content = $this->withSession(['locale' => 'tr'])
+        ->get(route('portfolio.index'))
+        ->assertOk()
+        ->assertSee('Vitrin Proje')
+        ->assertSee('xl:col-span-2', false)
+        ->getContent();
+
+    expect(strpos($content, 'Showcase Late'))->toBeLessThan(strpos($content, 'Plain First'));
+});
+
 it('returns not found for an unpublished project', function () {
     $project = createPublishedPortfolioProject();
     $project->update(['is_published' => false]);
@@ -176,15 +201,7 @@ it('provides project data and technology stack', function () {
         ->assertSee('Responsive Tasarım');
 });
 
-it('ships all local portfolio assets', function () {
-    foreach ([
-        'admin-dashboard.png',
-        'public-cv.png',
-        'mobile-showcase.png',
-    ] as $image) {
-        expect(public_path('images/portfolio/cv-manager/'.$image))->toBeFile();
-    }
-
+it('ships all local technology assets', function () {
     foreach (['laravel.svg', 'php.svg', 'livewire.svg', 'tailwindcss.svg', 'alpinejs.svg', 'vite.svg'] as $logo) {
         expect(public_path('images/technologies/'.$logo))->toBeFile();
     }

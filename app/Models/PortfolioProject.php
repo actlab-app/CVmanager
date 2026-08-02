@@ -32,6 +32,7 @@ class PortfolioProject extends Model
             'technologies' => 'array',
             'project_date' => 'date',
             'is_featured' => 'boolean',
+            'is_showcase' => 'boolean',
             'is_published' => 'boolean',
         ];
     }

@@ -221,6 +221,7 @@
                     <div class="space-y-3 rounded-xl border border-zinc-200 p-3 dark:border-zinc-700">
                         <flux:checkbox wire:model="is_published" label="Yayında göster" />
                         <flux:checkbox wire:model="is_featured" label="Öne çıkan proje" />
+                        <flux:checkbox wire:model="is_showcase" label="Vitrin proje" description="Portfolio sayfasında en üstte, iki kolon genişliğinde gösterilir." />
                     </div>
                 </div>
             </flux:card>

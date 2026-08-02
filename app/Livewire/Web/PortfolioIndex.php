@@ -29,6 +29,7 @@ class PortfolioIndex extends Component
             'projects' => PortfolioProject::query()
                 ->where('is_published', true)
                 ->with('images')
+                ->orderByDesc('is_showcase')
                 ->orderBy('sort_order')
                 ->orderByDesc('project_date')
                 ->orderBy('id')

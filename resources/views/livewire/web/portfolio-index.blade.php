@@ -33,12 +33,18 @@
                 $technologies = collect($project->technologies ?? [])
                     ->map(fn ($slug) => $technologyCatalog[$slug] ?? null)
                     ->filter()
-                    ->take(4);
+                    ->take($project->is_showcase ? 8 : 4);
             @endphp
 
-            <article class="group flex h-full flex-col overflow-visible rounded-2xl border border-line bg-[var(--bg-card)] shadow-sm">
+            <article @class([
+                'group flex h-full flex-col overflow-visible rounded-2xl border border-line bg-[var(--bg-card)] shadow-sm',
+                'xl:col-span-2 ring-1 ring-accent/20' => $project->is_showcase,
+            ])>
                 <a href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}" class="block">
-                    <div class="relative aspect-[16/9] overflow-hidden rounded-t-2xl bg-soft">
+                    <div @class([
+                        'relative aspect-[16/9] overflow-hidden rounded-t-2xl bg-soft',
+                        'xl:aspect-[21/9]' => $project->is_showcase,
+                    ])>
                         @if ($cover)
                             <img
                                 class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.025]"
@@ -52,7 +58,11 @@
                             </div>
                         @endif
 
-                        @if ($project->is_featured)
+                        @if ($project->is_showcase)
+                            <span class="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
+                                {{ __('Vitrin Proje') }}
+                            </span>
+                        @elseif ($project->is_featured)
                             <span class="absolute left-3 top-3 rounded-full bg-accent px-3 py-1 text-[10px] font-black uppercase tracking-wide text-white">
                                 {{ __('Öne Çıkan') }}
                             </span>
@@ -60,10 +70,17 @@
                     </div>
                 </a>
 
-                <div class="flex-1 p-4 sm:p-5">
+                <div @class([
+                    'flex-1 p-4 sm:p-5',
+                    'xl:px-7 xl:py-6' => $project->is_showcase,
+                ])>
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <h2 class="text-xl font-black text-ink">
+                            <h2 @class([
+                                'font-black text-ink',
+                                'text-xl' => ! $project->is_showcase,
+                                'text-2xl sm:text-3xl' => $project->is_showcase,
+                            ])>
                                 <a href="{{ \App\Support\ReferenceUrl::route('portfolio.show', $project) }}" class="hover:text-accent">
                                     {{ $project->title }}
                                 </a>
@@ -77,7 +94,11 @@
                         </span>
                     </div>
 
-                    <p class="mt-3 line-clamp-3 text-[13px] leading-relaxed text-muted">
+                    <p @class([
+                        'mt-3 line-clamp-3 leading-relaxed text-muted',
+                        'text-[13px]' => ! $project->is_showcase,
+                        'max-w-4xl text-[14px] sm:text-[15px]' => $project->is_showcase,
+                    ])>
                         {{ $project->short_description }}
                     </p>
 
