@@ -180,3 +180,35 @@ it('persists repeater rows in their visible order without internal keys', functi
     expect($record->getTranslation('skills', 'tr')[0]['category'])->toBe('Frontend')
         ->and($record->getTranslation('skills', 'tr')[0])->not->toHaveKey('_key');
 });
+
+it('saves qr_page and qr_token selections and resolves qr_url', function () {
+    $referenceToken = \App\Models\ReferenceToken::query()->create([
+        'name' => 'Actlab Token',
+        'token' => 'ACTLAB2026',
+    ]);
+
+    Livewire::test(CvManager::class)
+        ->set('full_name', 'Ahmet C.')
+        ->set('qr_page', 'portfolio')
+        ->set('qr_token', 'ACTLAB2026')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $record = CvRecord::firstOrFail();
+
+    expect($record->qr_page)->toBe('portfolio')
+        ->and($record->qr_token)->toBe('ACTLAB2026')
+        ->and($record->qr_url)->toBe(rtrim(config('app.url', url('/')), '/') . '/portfolio?rt=ACTLAB2026');
+
+    Livewire::test(CvManager::class)
+        ->set('qr_page', 'about')
+        ->set('qr_token', '')
+        ->call('save')
+        ->assertHasNoErrors();
+
+    $record->refresh();
+
+    expect($record->qr_page)->toBe('about')
+        ->and($record->qr_token)->toBeNull()
+        ->and($record->qr_url)->toBe(rtrim(config('app.url', url('/')), '/') . '/about');
+});

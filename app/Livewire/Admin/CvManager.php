@@ -3,14 +3,23 @@
 namespace App\Livewire\Admin;
 
 use App\Models\CvRecord;
+use App\Models\ReferenceToken;
 use Flux\Flux;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Title('CV Yönetimi')]
 class CvManager extends Component
 {
+    public const QR_PAGES = [
+        'about' => 'Hakkımda',
+        'cv' => 'Özgeçmiş',
+        'portfolio' => 'Portfolyo',
+        'contact' => 'İletişim',
+    ];
+
     private const LANGUAGES = ['tr', 'en'];
 
     private const TEXT_FIELDS = [
@@ -32,6 +41,10 @@ class CvManager extends Component
     public string $full_name = '';
 
     public string $qr_url = '';
+
+    public string $qr_page = 'portfolio';
+
+    public string $qr_token = '';
 
     public array $translations = [
         'tr' => [
@@ -74,6 +87,8 @@ class CvManager extends Component
 
         $this->full_name = $record->full_name ?? '';
         $this->qr_url = $record->qr_url ?? '';
+        $this->qr_page = (string) ($record->qr_page ?? $this->inferQrPageFromUrl($record->qr_url));
+        $this->qr_token = (string) ($record->qr_token ?? $this->inferQrTokenFromUrl($record->qr_url));
 
         foreach (self::LANGUAGES as $lang) {
             foreach (self::TEXT_FIELDS as $field) {
@@ -164,12 +179,17 @@ class CvManager extends Component
     public function save(): void
     {
         $this->validate([
+            'qr_page' => ['nullable', 'string', Rule::in(array_keys(self::QR_PAGES))],
+            'qr_token' => ['nullable', 'string'],
             'qr_url' => ['nullable', 'max:2048'],
         ]);
 
         $record = CvRecord::firstOrNew();
         $record->full_name = $this->full_name;
-        $record->qr_url = $this->qr_url ?: null;
+        $record->qr_page = $this->qr_page ?: null;
+        $record->qr_token = $this->qr_token ?: null;
+        $record->qr_url = $record->resolveQrUrl();
+        $this->qr_url = $record->qr_url ?? '';
 
         foreach (self::LANGUAGES as $lang) {
             foreach (self::TEXT_FIELDS as $field) {
@@ -188,7 +208,9 @@ class CvManager extends Component
 
     public function render()
     {
-        return view('livewire.admin.cv-manager');
+        return view('livewire.admin.cv-manager', [
+            'referenceTokens' => ReferenceToken::query()->active()->orderBy('name')->get(),
+        ]);
     }
 
     private function moveItem(string $field, string $rowKey, int $direction): void
@@ -296,4 +318,37 @@ class CvManager extends Component
 
         return is_scalar($rawValue) ? (string) $rawValue : null;
     }
+
+    private function inferQrPageFromUrl(?string $url): string
+    {
+        if (! $url) {
+            return 'portfolio';
+        }
+
+        foreach (array_keys(self::QR_PAGES) as $page) {
+            if (str_contains($url, '/'.$page)) {
+                return $page;
+            }
+        }
+
+        return 'portfolio';
+    }
+
+    private function inferQrTokenFromUrl(?string $url): string
+    {
+        if (! $url) {
+            return '';
+        }
+
+        $query = parse_url($url, PHP_URL_QUERY);
+        if (is_string($query)) {
+            parse_str($query, $params);
+            if (isset($params['rt']) && is_string($params['rt'])) {
+                return $params['rt'];
+            }
+        }
+
+        return '';
+    }
 }
+

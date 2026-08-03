@@ -47,12 +47,20 @@
         <div class="space-y-4">
             <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <flux:input label="Ad Soyad" wire:model="full_name" placeholder="Tam ad..." icon="user" />
-                <flux:input
-                    label="QR Linki"
-                    wire:model="qr_url"
-                    placeholder="https://example.com/portfolio"
-                    icon="qr-code"
-                />
+                <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <flux:select label="QR kodun gideceği sayfa" wire:model="qr_page" icon="globe">
+                        <flux:select.option value="">Sayfa Seçiniz</flux:select.option>
+                        @foreach (\App\Livewire\Admin\CvManager::QR_PAGES as $key => $label)
+                            <flux:select.option value="{{ $key }}">{{ $label }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:select label="Referans tokeni" wire:model="qr_token" icon="link">
+                        <flux:select.option value="">Token Seçilmedi</flux:select.option>
+                        @foreach ($referenceTokens as $refToken)
+                            <flux:select.option value="{{ $refToken->token }}">{{ $refToken->name }} ({{ $refToken->token }})</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </div>
             </div>
 
             <flux:input

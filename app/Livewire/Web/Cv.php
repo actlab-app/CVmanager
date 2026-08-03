@@ -58,10 +58,11 @@ class Cv extends Component
     {
         $record = CvRecord::firstOrFail();
         $locale = App::getLocale();
+        $token = $record->qr_token ?: ReferenceUrl::currentToken();
 
         $cvData = [
             'full_name' => $record->full_name,
-            'qr_url' => $record->qr_url ? ReferenceUrl::appendToken($record->qr_url) : null,
+            'qr_url' => $record->resolveQrUrl($token),
         ];
 
         foreach (self::TEXT_FIELDS as $field) {
@@ -92,18 +93,18 @@ class Cv extends Component
 
         return view($view, [
             'cvData' => $cvData,
-            'classicData' => $this->classicData($cvData, $locale),
+            'classicData' => $this->classicData($cvData, $locale, $token),
         ])
             ->layout('components.layouts.web', [
                 'title' => $record->full_name.' - CV',
             ]);
     }
 
-    private function classicData(array $cvData, string $locale): array
+    private function classicData(array $cvData, string $locale, ?string $token = null): array
     {
         return [
             'profile_summary' => $this->classicProfileSummary($cvData, $locale),
-            'projects' => $this->classicProjects($locale),
+            'projects' => $this->classicProjects($locale, $token),
             'technology_catalog' => $this->technologyCatalog($locale),
         ];
     }
@@ -128,7 +129,7 @@ class Cv extends Component
             : 'İş yazılımları, yönetim panelleri, entegrasyonlar, raporlama akışları ve uçtan uca ürün teslimatı odağında çalışan full-stack web geliştirici.';
     }
 
-    private function classicProjects(string $locale)
+    private function classicProjects(string $locale, ?string $token = null)
     {
         return PortfolioProject::query()
             ->where('is_published', true)
@@ -137,7 +138,7 @@ class Cv extends Component
             ->orderByDesc('project_date')
             ->limit(8)
             ->get()
-            ->map(function (PortfolioProject $project) use ($locale): array {
+            ->map(function (PortfolioProject $project) use ($locale, $token): array {
                 return [
                     'title' => $project->getTranslation('title', $locale, false) ?: $project->title,
                     'type' => $project->getTranslation('project_type', $locale, false) ?: $project->project_type,
@@ -146,7 +147,7 @@ class Cv extends Component
                     'date' => $project->project_date?->format('Y'),
                     'technologies' => $project->technologies ?? [],
                     'metrics' => $project->getTranslation('metrics', $locale, false) ?: [],
-                    'url' => ReferenceUrl::route('portfolio.show', $project),
+                    'url' => ReferenceUrl::appendToken(route('portfolio.show', $project), $token),
                 ];
             })
             ->all();

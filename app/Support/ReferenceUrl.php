@@ -57,6 +57,13 @@ class ReferenceUrl
         ]);
     }
 
+    public static function removeToken(string $url): string
+    {
+        return self::withQuery($url, [
+            self::PARAMETER => null,
+        ]);
+    }
+
     public static function withQuery(string $url, array $parameters): string
     {
         [$withoutFragment, $fragment] = array_pad(explode('#', $url, 2), 2, null);

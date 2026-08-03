@@ -102,3 +102,61 @@ it('does not double count redirect-only public routes', function () {
 
     expect($referenceToken->refresh()->visits_count)->toBe(0);
 });
+
+it('binds configured qr_token to both qr_url and second page portfolio links on public CV page', function () {
+    createCvForReferenceTokenTests();
+    SiteSetting::query()->create(['preferred_cv_theme' => 'classic']);
+
+    $referenceToken = ReferenceToken::query()->create([
+        'name' => 'Microsoft',
+        'token' => 'MICROSOFT1',
+    ]);
+
+    $record = \App\Models\CvRecord::first();
+    $record->update([
+        'qr_page' => 'portfolio',
+        'qr_token' => $referenceToken->token,
+    ]);
+
+    $project = new \App\Models\PortfolioProject([
+        'slug' => 'test-project',
+        'status' => 'active',
+        'is_published' => true,
+        'project_date' => '2026-06-13',
+    ]);
+    $project->setTranslation('title', 'tr', 'Test Project');
+    $project->setTranslation('short_description', 'tr', 'Test Summary');
+    $project->save();
+
+    $this->get(route('cv'))
+        ->assertOk()
+        ->assertSee('rt=MICROSOFT1', false)
+        ->assertSee(route('portfolio.show', ['project' => $project, 'rt' => $referenceToken->token]), false);
+});
+
+it('redirects without token when qr_token is empty or removed on CvRecord', function () {
+    createCvForReferenceTokenTests();
+    SiteSetting::query()->create(['preferred_cv_theme' => 'classic']);
+
+    $record = \App\Models\CvRecord::first();
+    $record->update([
+        'qr_page' => 'portfolio',
+        'qr_token' => null,
+    ]);
+
+    $project = new \App\Models\PortfolioProject([
+        'slug' => 'test-project',
+        'status' => 'active',
+        'is_published' => true,
+        'project_date' => '2026-06-13',
+    ]);
+    $project->setTranslation('title', 'tr', 'Test Project');
+    $project->setTranslation('short_description', 'tr', 'Test Summary');
+    $project->save();
+
+    $this->get(route('cv'))
+        ->assertOk()
+        ->assertSee(rtrim(config('app.url', url('/')), '/') . '/portfolio', false)
+        ->assertDontSee('rt=')
+        ->assertSee(route('portfolio.show', $project), false);
+});

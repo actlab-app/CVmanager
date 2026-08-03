@@ -487,11 +487,13 @@
         color: #ffffff !important;
       }
     }
-  </style>
   <script>
       (function () {
-        if (localStorage.getItem('cv-theme') === 'dark') {
+        const theme = localStorage.getItem('cv-theme') || 'light';
+        if (theme === 'dark') {
           document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
         }
       })();
   </script>
@@ -618,14 +620,19 @@
   @endif
 
   <script>
+    function getStoredTheme() {
+      return localStorage.getItem('cv-theme') || 'light';
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
+      applyTheme(getStoredTheme());
       if (window.lucide) window.lucide.createIcons();
       initReferenceGreeting();
     });
 
     document.addEventListener('livewire:navigated', () => {
+      applyTheme(getStoredTheme());
       if (window.lucide) window.lucide.createIcons();
-      applyTheme(document.documentElement.classList.contains('dark'));
       initReferenceGreeting();
     });
 
@@ -635,12 +642,13 @@
       });
     });
 
-    function applyTheme(dark) {
+    function applyTheme(theme) {
+      const isDark = theme === 'dark';
       const html = document.documentElement;
       const icon = document.getElementById('theme-icon');
       const iconMobile = document.getElementById('theme-icon-mobile');
       const label = document.getElementById('theme-label');
-      if (dark) {
+      if (isDark) {
         html.classList.add('dark');
         if (icon) icon.setAttribute('data-lucide', 'moon');
         if (iconMobile) iconMobile.setAttribute('data-lucide', 'moon');
@@ -651,13 +659,13 @@
         if (iconMobile) iconMobile.setAttribute('data-lucide', 'sun');
         if (label) label.textContent = 'Light';
       }
+      localStorage.setItem('cv-theme', isDark ? 'dark' : 'light');
       if (window.lucide) window.lucide.createIcons();
     }
 
     function toggleTheme() {
       const isDark = document.documentElement.classList.contains('dark');
-      applyTheme(!isDark);
-      localStorage.setItem('cv-theme', !isDark ? 'dark' : 'light');
+      applyTheme(isDark ? 'light' : 'dark');
     }
 
     function initReferenceGreeting() {
@@ -739,7 +747,7 @@
       greeting.addEventListener('pointercancel', endDrag);
     }
 
-    applyTheme(document.documentElement.classList.contains('dark'));
+    applyTheme(getStoredTheme());
   </script>
 </body>
 
